@@ -3,7 +3,7 @@
 namespace Model {
     public sealed class Faction {
         public interface IController {
-            void OnStartTurn(Faction team);
+            void OnStartTurn(Faction faction);
             void OnEndTurn();
             void OnChangeStatus();
         }

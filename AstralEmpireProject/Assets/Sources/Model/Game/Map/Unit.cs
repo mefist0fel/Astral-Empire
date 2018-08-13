@@ -5,14 +5,13 @@ using UnityEngine;
 namespace Model {
     [Serializable]
     public sealed class Unit {
-        [SerializeField]
-        private int maxHitPoints = 10;
-        [SerializeField]
-        private int hitPoints = 10;
-        public int HitPoints { get { return hitPoints; } }
-        public int MaxHitPoints { get { return maxHitPoints; } }
+        public int HitPoints { get; private set; }
+        public int MaxHitPoints { get; private set; }
+        public int ActionPoints { get; private set; }
+        public int MaxActionPoints { get; private set; }
         public string Model { get; private set; }
         public string Name { get; private set; }
+        public Coord Coordinate { get; private set; }
         public Faction faction = null;
 
         public int moveDistance = 3;
@@ -25,14 +24,13 @@ namespace Model {
         public int maxFireRange = 1;
         public int minFireRange = 1;
 
-        public bool canMove = false;
-        public bool canFire = false;
         public List<Coord> movePath = new List<Coord>();
         private Map map = null;
 
+
         [SerializeField] private Coord coord = new Coord();
 
-        public Unit() {// UnitData unitData) {
+        public Unit(string name, int maxHitPoints, int maxActionPoints) {
      //       hitPoints = unitData.HitPoints;
      //       maxHitPoints = unitData.HitPoints;
      //       Model = unitData.Model;
@@ -55,42 +53,33 @@ namespace Model {
       //  }
       //
         public bool IsAlive {
-            get { return hitPoints > 0; }
-        }
-
-        public Coord Coordinate {
-            get { return coord; }
-        }
-
-        public int ContourAttackDamage {
-            get { return Mathf.CeilToInt(damage * 0.5f); }
+            get { return HitPoints > 0; }
         }
 
         public void OnStartTurn() {
-            canMove = moveDistance > 0;
-            canFire = true;
+            ActionPoints = MaxActionPoints;
         }
 
         public void Init(Map controlMap, Faction team, Coord unitCoord) {
             faction = team;
             coord = unitCoord;
-            this.map = controlMap;
+            map = controlMap;
             map[coord].unit = this; // add Set unit action
             Name = "Unit_" + team.Name;
         }
 
         public void MoveTo(Map map, Coord newCoord) {
-            canMove = false;
+            // canMove = false;
             coord = newCoord;
         }
 
         public void AttackUnit(Unit enemy) {
-            canFire = false;
-            canMove = false;
+           // canFire = false;
+           // canMove = false;
             FireTo(enemy, damage);
             if (enemy.IsAlive) {
                 if (enemy.IsCanCounterAttack(this)) {
-                    enemy.FireTo(this, ContourAttackDamage);
+                 //   enemy.FireTo(this, ContourAttackDamage);
                     if (!IsAlive) {
                         Death();
                     }
@@ -106,12 +95,12 @@ namespace Model {
         }
 
         public void OnHit(int damage) {
-            hitPoints -= damage;
+            HitPoints -= damage;
         }
 
         public void Death() {
             map.KillUnit(Coordinate);
-            hitPoints = 0;
+            HitPoints = 0;
         }
 
         public bool IsCanMoveThrew(Map.CellType type) {

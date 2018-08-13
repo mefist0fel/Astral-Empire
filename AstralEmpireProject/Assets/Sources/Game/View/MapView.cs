@@ -72,5 +72,6 @@ public sealed class MapView : MonoBehaviour {
             return;
         var cellObject = Instantiate(prefab, transform);
         cellObject.transform.position = position;
+        cellObject.transform.localRotation = Quaternion.Euler(0, Random.Range(0, 4) * 90f, 0);
     }
 }

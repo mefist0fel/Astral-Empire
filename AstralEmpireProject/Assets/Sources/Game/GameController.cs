@@ -9,15 +9,26 @@ public class GameController : MonoBehaviour {
     private int height = 51;
     [SerializeField]
     private MapView mapView; // Set from editor
+    [SerializeField]
+    private PlayerTurnController playerController; // Set from editor
 
     private Game game;
     private CameraControlModel cameraModel = new CameraControlModel(OnFieldClick);
 
     private void Start () {
+        var factions = new Faction[] {
+            new Faction(playerController, 0, Color.blue, Color.white, "player 1"),
+            new Faction(playerController, 0, Color.red, Color.black, "player 2")
+        };
+
         var map = new Map(wight, height);
-        game = new Game(map);
+        game = new Game(map, factions);
+        game.OnAddUnit += OnAddUnit;
         mapView.Init(map);
         CameraController.SetBorders(mapView.GetBorders(map));
+    }
+
+    private void OnAddUnit(Unit unit) {
     }
 
     private static void OnFieldClick(Vector2 pointerPosition) {
