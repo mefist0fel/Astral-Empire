@@ -1,6 +1,7 @@
 ﻿using System;
 using Model;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class GameController : MonoBehaviour {
     [SerializeField]
@@ -14,6 +15,7 @@ public class GameController : MonoBehaviour {
 
     private Game game;
     private CameraControlModel cameraModel = new CameraControlModel(OnFieldClick);
+    private Dictionary<Unit, UnitView> unitViews = new Dictionary<Unit, UnitView>();
 
     private void Start () {
         var factions = new Faction[] {
@@ -26,9 +28,33 @@ public class GameController : MonoBehaviour {
         game.OnAddUnit += OnAddUnit;
         mapView.Init(map);
         CameraController.SetBorders(mapView.GetBorders(map));
+        CreateDummyUnits(10);
+    }
+
+    private void CreateDummyUnits(int count) {
+        foreach (var faction in game.Factions) {
+            for (int i = 0; i < count; i++) {
+                var randomCoord = game.Map.GetRandomCoord(Map.CellType.Land, new Coord((int)(wight * 0.4f), (int)(height * 0.4f)), new Coord((int)(wight * 0.6f), (int)(height * 0.6f)));
+                game.CreateUnit(faction, randomCoord);
+            }
+        }
     }
 
     private void OnAddUnit(Unit unit) {
+        unitViews.Add(unit, CreateUnitView(transform, mapView, unit, "test_unit"));
+    }
+
+    public static UnitView CreateUnitView(Transform parent, MapView mapView, Unit unit, string prefabName) {
+        var unitPrefab = Resources.Load<UnitView>(prefabName);
+        if (unitPrefab == null) {
+            Debug.LogError("Can't load unit " + prefabName);
+            return null;
+        }
+        UnitView unitView = Instantiate(unitPrefab);
+        unitView.gameObject.SetActive(true);
+        unitView.transform.parent = parent;
+        unitView.Init(unit, mapView.CellCoordToPosition(unit.Coordinate));
+        return unitView;
     }
 
     private static void OnFieldClick(Vector2 pointerPosition) {

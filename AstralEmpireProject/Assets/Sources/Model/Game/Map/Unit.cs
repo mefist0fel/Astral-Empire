@@ -27,10 +27,8 @@ namespace Model {
         public List<Coord> movePath = new List<Coord>();
         private Map map = null;
 
-
-        [SerializeField] private Coord coord = new Coord();
-
         public Unit(string name, int maxHitPoints, int maxActionPoints) {
+            Coordinate = new Coord();
      //       hitPoints = unitData.HitPoints;
      //       maxHitPoints = unitData.HitPoints;
      //       Model = unitData.Model;
@@ -62,15 +60,15 @@ namespace Model {
 
         public void Init(Map controlMap, Faction team, Coord unitCoord) {
             faction = team;
-            coord = unitCoord;
+            Coordinate = unitCoord;
             map = controlMap;
-            map[coord].unit = this; // add Set unit action
+            map[Coordinate].unit = this; // add Set unit action
             Name = "Unit_" + team.Name;
         }
 
         public void MoveTo(Map map, Coord newCoord) {
             // canMove = false;
-            coord = newCoord;
+            Coordinate = newCoord;
         }
 
         public void AttackUnit(Unit enemy) {

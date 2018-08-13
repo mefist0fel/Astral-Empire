@@ -6,8 +6,8 @@ using UnityEngine;
 namespace Model {
     public sealed class Game {
         public readonly Map Map;
+        public readonly Faction[] Factions;
         private readonly List<Unit> Units = new List<Unit>();
-        private readonly Faction[] Factions;
 
         public event Action<Unit> OnAddUnit;
 
@@ -16,7 +16,7 @@ namespace Model {
             Factions = factions;
         }
 
-        public void AddUnit(Faction faction, Coord position) {
+        public void CreateUnit(Faction faction, Coord position) {
             var unit = new Unit("test", 10, 2);
             unit.Init(Map, faction, position);
             OnAddUnit(unit);
