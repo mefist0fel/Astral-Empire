@@ -3,7 +3,7 @@ using Model;
 using UnityEngine;
 using System.Collections.Generic;
 
-public class GameController : MonoBehaviour {
+public class GameController : MonoBehaviour, Game.IGameController {
     [SerializeField]
     private int wight = 51;
     [SerializeField]
@@ -24,8 +24,7 @@ public class GameController : MonoBehaviour {
         };
 
         var map = new Map(wight, height);
-        game = new Game(map, factions);
-        game.OnAddUnit += OnAddUnit;
+        game = new Game(this, map, factions);
         mapView.Init(map);
         CameraController.SetBorders(mapView.GetBorders(map));
         CreateDummyUnits(10);
@@ -40,8 +39,17 @@ public class GameController : MonoBehaviour {
         }
     }
 
-    private void OnAddUnit(Unit unit) {
+    public void OnAddUnit(Unit unit) {
         unitViews.Add(unit, CreateUnitView(transform, mapView, unit, "test_unit"));
+    }
+
+    public void OnRemoveUnit(Unit unit) {
+    }
+
+    public void OnEndTurn(Faction faction) {
+    }
+
+    public void OnStartTurn(Faction faction) {
     }
 
     public static UnitView CreateUnitView(Transform parent, MapView mapView, Unit unit, string prefabName) {

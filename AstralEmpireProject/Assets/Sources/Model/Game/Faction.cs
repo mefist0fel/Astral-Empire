@@ -1,4 +1,6 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
+using System.Linq;
 
 namespace Model {
     public sealed class Faction {
@@ -12,42 +14,28 @@ namespace Model {
         public readonly string Name;
         public readonly Color BaseColor = Color.white;
         public readonly Color FactionColor = Color.blue;
-        public Unit[] Units = null;
+        public List<Unit> Units = new List<Unit>();
 
-        private IController turnController = null;
+        private IController controller = null;
 
-        public int UnitCount {
-            get {
-                int count = 0;
-                if (Units != null) {
-                    for (int i = 0; i < Units.Length; i++) {
-                        if (Units[i] != null && Units[i].IsAlive) {
-                            count += 1;
-                        }
-                    }
-                }
-                return count;
-            }
-        }
+        public int UnitCount { get { return Units.Count(unit => unit != null && unit.IsAlive); }}
 
         public Faction(IController turnController, int sideId, Color baseColor, Color factionColor, string name = "") {
-            this.Name = name;
-            this.BaseColor = baseColor;
-            this.FactionColor = factionColor;
-            this.SideId = sideId;
-            this.turnController = turnController;
+            Name = name;
+            BaseColor = baseColor;
+            FactionColor = factionColor;
+            SideId = sideId;
+            controller = turnController;
         }
 
         public void OnStartTurn() {
-            if (Units != null) {
-                for (int i = 0; i < Units.Length; i++) {
-                    if (Units[i] != null) {
-                        Units[i].OnStartTurn();
-                    }
+            foreach (var unit in Units) {
+                if (unit == null && unit.IsAlive) {
+                    unit.OnStartTurn();
                 }
             }
-            if (turnController != null) {
-                turnController.OnStartTurn(this);
+            if (controller != null) {
+                controller.OnStartTurn(this);
             }
         }
 
@@ -55,13 +43,9 @@ namespace Model {
         }
 
         public void OnEndTurn() {
-            if (turnController != null) {
-                turnController.OnEndTurn();
+            if (controller != null) {
+                controller.OnEndTurn();
             }
-        }
-
-        public void SetController(IController turnController) {
-            this.turnController = turnController;
         }
     }
 

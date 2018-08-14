@@ -18,7 +18,6 @@ public sealed class UnitView : MonoBehaviour {
     public void Init(Unit unitModel, Vector3 position) {
         unit = unitModel;
         transform.localPosition = position;
-        Debug.Log(position);
         transform.localEulerAngles = new Vector3(0, 180f * unit.faction.SideId, 0); // hack for rotation
         SetUnitColor(unit.faction.BaseColor, unit.faction.FactionColor);
     }
