@@ -12,7 +12,7 @@ namespace Model {
         public string Model { get; private set; }
         public string Name { get; private set; }
         public Coord Coordinate { get; private set; }
-        public Faction faction = null;
+        public Faction Faction = null;
 
         public int moveDistance = 3;
         public Map.CellType[] moveTerrainMask = new Map.CellType[] {
@@ -29,8 +29,8 @@ namespace Model {
 
         public Unit(string name, int maxHitPoints, int maxActionPoints) {
             Coordinate = new Coord();
-     //       hitPoints = unitData.HitPoints;
-     //       maxHitPoints = unitData.HitPoints;
+            HitPoints = maxHitPoints;
+            MaxHitPoints = maxHitPoints;
      //       Model = unitData.Model;
      //       Name = unitData.Name;
      //       moveDistance = unitData.MoveDistance;
@@ -59,10 +59,10 @@ namespace Model {
         }
 
         public void Init(Map controlMap, Faction team, Coord unitCoord) {
-            faction = team;
+            Faction = team;
             Coordinate = unitCoord;
             map = controlMap;
-            map[Coordinate].unit = this; // add Set unit action
+            map[Coordinate].Unit = this; // add Set unit action
             Name = "Unit_" + team.Name;
         }
 

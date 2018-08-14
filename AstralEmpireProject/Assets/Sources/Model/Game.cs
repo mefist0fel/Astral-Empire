@@ -1,6 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
+﻿using System.Collections.Generic;
 
 namespace Model {
     public sealed class Game {
@@ -22,6 +20,7 @@ namespace Model {
         public void CreateUnit(Faction faction, Coord position) {
             var unit = new Unit("test", 10, 2);
             unit.Init(Map, faction, position);
+            Units.Add(unit);
             faction.Units.Add(unit);
             controller.OnAddUnit(unit);
         }

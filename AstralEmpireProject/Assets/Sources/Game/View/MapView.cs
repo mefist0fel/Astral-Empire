@@ -35,7 +35,7 @@ public sealed class MapView : MonoBehaviour {
         for (int i = 0; i < map.Widht; i++) {
             for (int j = 0; j < map.Height; j++) {
                 var coord = new Coord(i, j);
-                var prefab = GetRandomPrefabForType(map[coord].type);
+                var prefab = GetRandomPrefabForType(map[coord].Type);
                 CreateCellObject(CellCoordToPosition(coord), prefab);
             }
         }
@@ -47,7 +47,7 @@ public sealed class MapView : MonoBehaviour {
         for (int i = 0; i < map.Widht; i++) {
             for (int j = 0; j < map.Height; j++) {
                 var coord = new Coord(i, j);
-                if (map[coord].type == Map.CellType.None)
+                if (map[coord].Type == Map.CellType.None)
                     continue;
                 var position = CellCoordToPosition(coord);
                 min.x = Mathf.Min(min.x, position.x);

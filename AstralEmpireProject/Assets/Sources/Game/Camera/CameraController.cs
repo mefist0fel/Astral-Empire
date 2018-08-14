@@ -119,17 +119,16 @@ public class CameraController : MonoBehaviour {
         instance.needCameraShift.z = -Mathf.Min(-instance.needCameraShift.z, instance.maxDistance);
     }
 
-    private Vector3 Raycast(Vector2 screenPoint) {
-        Vector3 point = Vector3.zero;
-        if (ControlCamera != null) {
-            var ray = ControlCamera.ScreenPointToRay(screenPoint);
-            Plane floorPlane = new Plane(Vector3.up, Vector3.zero);
-            float distance = 0;
-            if (floorPlane.Raycast(ray, out distance)) {
-                return ray.GetPoint(distance);
-            }
+    public Vector3 Raycast(Vector2 screenPoint) {
+        if (ControlCamera == null)
+            return Vector3.zero;
+        var ray = ControlCamera.ScreenPointToRay(screenPoint);
+        Plane floorPlane = new Plane(Vector3.up, Vector3.zero);
+        float distance = 0;
+        if (floorPlane.Raycast(ray, out distance)) {
+            return ray.GetPoint(distance);
         }
-        return point;
+        return Vector3.zero;
     }
 
     private void Update() {

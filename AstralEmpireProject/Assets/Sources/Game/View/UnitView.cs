@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using Model;
+using System;
 using Random = UnityEngine.Random;
 
 public sealed class UnitView : MonoBehaviour {
@@ -18,8 +19,8 @@ public sealed class UnitView : MonoBehaviour {
     public void Init(Unit unitModel, Vector3 position) {
         unit = unitModel;
         transform.localPosition = position;
-        transform.localEulerAngles = new Vector3(0, 180f * unit.faction.SideId, 0); // hack for rotation
-        SetUnitColor(unit.faction.BaseColor, unit.faction.FactionColor);
+        transform.localEulerAngles = new Vector3(0, 180f * unit.Faction.SideId, 0); // hack for rotation
+        SetUnitColor(unit.Faction.BaseColor, unit.Faction.FactionColor);
     }
 
     public Vector3 GetHitPoint() {

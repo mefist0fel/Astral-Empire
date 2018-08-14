@@ -261,6 +261,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b192d6cd27443ea4991f4dada79e7320, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  mapView: {fileID: 134437006}
+  cameraController: {fileID: 1243998249}
 --- !u!4 &872727459
 Transform:
   m_ObjectHideFlags: 0

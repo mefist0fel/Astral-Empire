@@ -1,12 +1,23 @@
 using UnityEngine;
-
-public delegate void Action();
+using System;
 
 public static class Utils {
     const uint defaultPixelToUnit = 108;
 
     public static Color WithAlpha(this Color color, float alpha) {
         return new Color(color.r, color.g, color.b, alpha);
+    }
+
+    public static void InvokeSafe(this Action action) {
+        if (action == null)
+            return;
+        action();
+    }
+
+    public static void InvokeSafe<T>(this Action<T> action, T param) {
+        if (action == null)
+            return;
+        action(param);
     }
 
     public static T Create<T>(Transform parent, Vector3 position, string name = "") where T : Component {

@@ -29,12 +29,12 @@ namespace Model {
         }
 
         public class Cell {
-            public Unit unit = null;
-            public CellType type = CellType.None;
+            public Unit Unit = null;
+            public CellType Type = CellType.None;
 
             public Unit GetUnit() {
-                if (unit != null && unit.IsAlive)
-                    return unit;
+                if (Unit != null && Unit.IsAlive)
+                    return Unit;
                 return null;
             }
         }
@@ -62,12 +62,12 @@ namespace Model {
             if (from == to) {
                 return;
             }
-            if (this[from].unit != null && this[to].unit == null) {
+            if (this[from].Unit != null && this[to].Unit == null) {
                 var path = TryFindPath(from, to, moveMarkers); // TODO find separately for unit
-                this[to].unit = this[from].unit;
-                this[from].unit = null;
-                this[to].unit.MoveTo(this, to);
-                AddAction(new MoveAction(this[to].unit, from, to, path));
+                this[to].Unit = this[from].Unit;
+                this[from].Unit = null;
+                this[to].Unit.MoveTo(this, to);
+                AddAction(new MoveAction(this[to].Unit, from, to, path));
             }
 #if UNITY_EDITOR
         else {
@@ -77,9 +77,9 @@ namespace Model {
         }
 
         public void KillUnit(Coord coord) {
-            if (this[coord].unit != null) {
-                AddAction(new DeathAction(this[coord].unit, coord));
-                this[coord].unit = null;
+            if (this[coord].Unit != null) {
+                AddAction(new DeathAction(this[coord].Unit, coord));
+                this[coord].Unit = null;
             }
 #if UNITY_EDITOR
         else {
@@ -97,7 +97,7 @@ namespace Model {
             }
             for (int i = 0; i < 50; i++) {
                 Coord coord = new Coord(Random.Range(from.x, to.x), Random.Range(from.y, to.y));
-                if (this[coord].unit == null && this[coord].type == startType) {
+                if (this[coord].Unit == null && this[coord].Type == startType) {
                     return coord;
                 }
             }
@@ -137,7 +137,7 @@ namespace Model {
                     if (i + j - 1 <= widht * 0.5f || i + j + 1 >= widht + height - widht * 0.5f - 2) {
                         continue;
                     }
-                    cells[i, j].type = CellType.Land;
+                    cells[i, j].Type = CellType.Land;
                 }
             }
             for (int i = 2; i < widht - 2; i++) {
@@ -145,12 +145,12 @@ namespace Model {
                     if (i + j - 1 <= widht * 0.5f || i + j + 1 >= widht + height - widht * 0.5f - 2) {
                         continue;
                     }
-                    cells[i, j].type = CellType.Land;
+                    cells[i, j].Type = CellType.Land;
                     if (Random.Range(0, 16) == 0) {
-                        cells[i, j].type = CellType.Rough;
+                        cells[i, j].Type = CellType.Rough;
                     }
                     if (Random.Range(0, 6) == 0) {
-                        cells[i, j].type = CellType.Mountains;
+                        cells[i, j].Type = CellType.Mountains;
                     }
                 }
             }
@@ -175,7 +175,7 @@ namespace Model {
 
         public MarkersSet GetMoveZone(Unit unit) {
             var moveMarkers = new MarkersSet();
-            MarkMoveZoneRecursive(moveMarkers, unit.Coordinate, unit.moveTerrainMask, unit.moveDistance + 1, unit.faction);
+            MarkMoveZoneRecursive(moveMarkers, unit.Coordinate, unit.moveTerrainMask, unit.moveDistance + 1, unit.Faction);
             return moveMarkers;
         }
 
@@ -202,7 +202,7 @@ namespace Model {
         private void MarkEnemyUnitsOnFireZone(MarkersSet fireMarkers, Unit unit) {
             List<Coord> fireZoneMarkers = fireMarkers.GetCoordList();
             foreach (var markerCoord in fireZoneMarkers) {
-                bool isEnemyUnit = (this[markerCoord].unit != null && this[markerCoord].unit.IsAlive && this[markerCoord].unit.faction != unit.faction);
+                bool isEnemyUnit = (this[markerCoord].Unit != null && this[markerCoord].Unit.IsAlive && this[markerCoord].Unit.Faction != unit.Faction);
                 fireMarkers[markerCoord] = isEnemyUnit ? 1 : 0;
             }
         }
@@ -212,14 +212,14 @@ namespace Model {
                 return;
             bool canMove = false;
             for (int i = 0; i < accessibilityMask.Length; i++) {
-                if (accessibilityMask[i] == this[startPoint].type) {
+                if (accessibilityMask[i] == this[startPoint].Type) {
                     canMove = true;
                     break;
                 }
             }
             if (!canMove)
                 return;
-            if (this[startPoint].unit != null && team != this[startPoint].unit.faction)
+            if (this[startPoint].Unit != null && team != this[startPoint].Unit.Faction)
                 return;
             if (distance <= moveMarkers[startPoint])
                 return;
@@ -236,7 +236,7 @@ namespace Model {
             MarkersSet fullFireZone = new MarkersSet();
             var moveCoords = moveZone.GetCoordList();
             foreach (var coord in moveCoords) {
-                if (this[coord].unit == null) {
+                if (this[coord].Unit == null) {
                     MarkersSet localFireMarkers = new MarkersSet();
                     MarkFireZoneRecursive(localFireMarkers, coord, unit.maxFireRange + 1);
                     ClearNearFireZoneRecursive(localFireMarkers, coord, unit.minFireRange);
@@ -260,7 +260,7 @@ namespace Model {
             int bestMarker = 0;
             Coord nearestCoord = Coord.Zero;
             foreach (var moveCoord in moveCoords) {
-                if (moveMarkers[moveCoord] > bestMarker && (this[moveCoord].unit == unit || this[moveCoord].unit == null)) {
+                if (moveMarkers[moveCoord] > bestMarker && (this[moveCoord].Unit == unit || this[moveCoord].Unit == null)) {
                     var fireMarkers = new MarkersSet();
                     MarkFireZoneRecursive(fireMarkers, moveCoord, unit.maxFireRange + 1);
                     ClearNearFireZoneRecursive(fireMarkers, moveCoord, unit.minFireRange);

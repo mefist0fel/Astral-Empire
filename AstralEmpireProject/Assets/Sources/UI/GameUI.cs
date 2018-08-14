@@ -1,18 +1,25 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using UnityEngine;
 using UnityEngine.UI;
+using System;
 
 public sealed class GameUI : UILayer {
     [SerializeField]
-    private Button OnEndTurnButton;
+    private Text statusText;
+    [SerializeField]
+    private Button EndTurnButton;
+
+    public event Action OnEndTurnClick;
 
     protected override void OnShow() {
-        OnEndTurnButton.onClick.AddListener(OnEndTurnClick);
+        EndTurnButton.onClick.AddListener(OnEndTurnButtonClick);
     }
 
-    private void OnEndTurnClick() {
-        Debug.LogError("OnEndTurnClick");
+    public void SetStatusText(string text) {
+        statusText.text = text;
+    }
+
+    private void OnEndTurnButtonClick() {
+        OnEndTurnClick.InvokeSafe();
     }
 
     private void Start () {}

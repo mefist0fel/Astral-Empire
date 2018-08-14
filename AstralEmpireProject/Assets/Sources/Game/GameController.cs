@@ -14,18 +14,18 @@ public class GameController : MonoBehaviour, Game.IGameController {
     private PlayerTurnController playerController; // Set from editor
 
     private Game game;
-    private CameraControlModel cameraModel = new CameraControlModel(OnFieldClick);
     private Dictionary<Unit, UnitView> unitViews = new Dictionary<Unit, UnitView>();
 
     private void Start () {
         var factions = new Faction[] {
-            new Faction(playerController, 0, Color.blue, Color.white, "player 1"),
-            new Faction(playerController, 0, Color.red, Color.black, "player 2")
+            new Faction(playerController, 0, Color.blue, Color.white, "Blue player"),
+            new Faction(playerController, 1, Color.red, Color.black, "Red player")
         };
 
         var map = new Map(wight, height);
         game = new Game(this, map, factions);
         mapView.Init(map);
+        playerController.Init(game);
         CameraController.SetBorders(mapView.GetBorders(map));
         CreateDummyUnits(10);
     }
@@ -65,9 +65,6 @@ public class GameController : MonoBehaviour, Game.IGameController {
         return unitView;
     }
 
-    private static void OnFieldClick(Vector2 pointerPosition) {
-    }
-
     private void Update () {
         if (Input.GetKeyDown(KeyCode.F1)) {
         }
@@ -79,6 +76,5 @@ public class GameController : MonoBehaviour, Game.IGameController {
         if (Input.GetKeyUp(KeyCode.Escape)) {
             Application.Quit();
         }
-        cameraModel.Process();
     }
 }
