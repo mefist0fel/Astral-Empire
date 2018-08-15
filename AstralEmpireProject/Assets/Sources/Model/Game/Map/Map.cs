@@ -149,10 +149,10 @@ namespace Model {
                         continue;
                     }
                     cells[i, j].Type = CellType.Land;
-                    if (Random.Range(0, 16) == 0) {
+                    if (Random.Range(0, 8) == 0) {
                         cells[i, j].Type = CellType.Rough;
                     }
-                    if (Random.Range(0, 3) == 0) {
+                    if (Random.Range(0, 16) == 0) {
                         cells[i, j].Type = CellType.Mountains;
                     }
                 }

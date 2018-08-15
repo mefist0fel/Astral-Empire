@@ -48,22 +48,9 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
             }
         } else {
             if (cell.Unit == null) {
-                var timerD = System.Diagnostics.Stopwatch.StartNew();
-                for (int i = 0; i < 100; i++) {
-                    game.Map.FindPathDijkstra(selectedUnit.Coordinate, pointerCoord, selectedUnit.moveTerrainMask, selectedUnit.Faction);
-                }
-                Debug.LogError(timerD.ElapsedMilliseconds / 1000f);
-                var timerA = System.Diagnostics.Stopwatch.StartNew();
-                for (int i = 0; i < 100; i++) {
-                    game.Map.FindPathAStar(selectedUnit.Coordinate, pointerCoord, selectedUnit.moveTerrainMask, selectedUnit.Faction);
-                }
-                Debug.LogError(timerA.ElapsedMilliseconds / 1000f);
-                gameUI.SetStatusText("Dijkstra " + (timerD.ElapsedMilliseconds / 1000f) + " AStar " + (timerA.ElapsedMilliseconds / 1000f));
-
-                var path2 = game.Map.FindPath(selectedUnit.Coordinate, pointerCoord, selectedUnit.moveTerrainMask, selectedUnit.Faction);
-                var markers2Positions = path2.Select((coord) => mapView.CellCoordToPosition(coord)).ToList();
-                fireMarkersView.Show(markers2Positions);
-
+                // var path2 = game.Map.FindPathDijkstra(selectedUnit.Coordinate, pointerCoord, selectedUnit.moveTerrainMask, selectedUnit.Faction);
+                // var markers2Positions = path2.Select((coord) => mapView.CellCoordToPosition(coord)).ToList();
+                // fireMarkersView.Show(markers2Positions);
                 var path = game.Map.FindPath(selectedUnit.Coordinate, pointerCoord, selectedUnit.moveTerrainMask, selectedUnit.Faction);
                 var markersPositions = path.Select((coord) => mapView.CellCoordToPosition(coord)).ToList();
                 moveMarkersView.Show(markersPositions);
@@ -71,7 +58,7 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
                 SelectUnit(cell.Unit);
             }
         }
-        // ShowStatus(cell, pointerCoord);
+        ShowStatus(cell, pointerCoord);
     }
 
     private void SelectUnit(Unit unit) {
