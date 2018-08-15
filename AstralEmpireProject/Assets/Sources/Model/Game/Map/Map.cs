@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System;
 using Random = UnityEngine.Random; // TODO remove me
 using System.Linq;
+using Model.PathFind;
 
 namespace Model {
     /// <summary>
@@ -12,14 +13,15 @@ namespace Model {
         public abstract class Action { }
 
         private const int defaultSize = 21;
-        private readonly int widht;
+        private readonly int width;
         private readonly int height;
 
-        public int Widht { get { return widht; } }
+        public int Widht { get { return width; } }
         public int Height { get { return height; } }
 
         public Cell[,] cells = null;
         public List<Action> actions = new List<Action>();
+        public readonly Navigation Navigation;
 
         public enum CellType {
             None = 0, // nothing - end of map move zone
@@ -42,13 +44,13 @@ namespace Model {
 
         public Cell this[int x, int y] {
             get {
-                if (x >= 0 && y >= 0 && x < widht && y < height) {
+                if (x >= 0 && y >= 0 && x < width && y < height) {
                     return cells[x, y];
                 }
                 return new Cell();
             }
             set {
-                if (x >= 0 && y >= 0 && x < widht && y < height) {
+                if (x >= 0 && y >= 0 && x < width && y < height) {
                     cells[x, y] = value;
                 }
             }
@@ -120,12 +122,11 @@ namespace Model {
             new Coord( 0, 1),
         };
 
-        public Map(int mapWidht = defaultSize, int mapHeight = defaultSize) {
-            widht = mapWidht;
+        public Map(int mapWidth = defaultSize, int mapHeight = defaultSize) {
+            width = mapWidth;
             height = mapHeight;
-            cells = GenerateCells(widht, height);
-            cameFromId = new Coord[widht, height];
-            distanceToId = new int[widht, height];
+            cells = GenerateCells(width, height);
+            Navigation = new Navigation(width, height);
         }
 
         private Cell[,] GenerateCells(int widht, int height) {
@@ -168,25 +169,6 @@ namespace Model {
             unit.AttackUnit(attackedUnit);
         }
 
-        public MarkersSet GetMoveZone(Unit unit) {
-            var moveMarkers = new MarkersSet();
-            MarkMoveZoneRecursive(moveMarkers, unit.Coordinate, unit.moveTerrainMask, unit.ActionPoints + 1, unit.Faction);
-            return moveMarkers;
-        }
-
-        private void MarkMoveZoneRecursive(MarkersSet moveMarkers, Coord startPoint, CellType[] accessibilityMask, int distance, Faction faction) {
-            if (distance <= 0)
-                return;
-            if (!CanMoveThroughCell(this[startPoint], accessibilityMask, faction))
-                return;
-            if (distance <= moveMarkers[startPoint])
-                return;
-            moveMarkers[startPoint] = distance;
-            for (int i = 0; i < Neigbhors.Length; i++) {
-                MarkMoveZoneRecursive(moveMarkers, startPoint + Neigbhors[i], accessibilityMask, distance - 1, faction);
-            }
-        }
-
         private bool CanMoveThroughCell(Cell cell, CellType[] accessibilityMask, Faction faction) {
             if (!accessibilityMask.Contains(cell.Type))
                 return false;
@@ -195,131 +177,18 @@ namespace Model {
             return true;
         }
 
-        public List<Coord> TryFindPath(Coord from, Coord to, MarkersSet moveMarkers) {
-            List<Coord> pathPoints = new List<Coord>();
-            if (moveMarkers[to] > 0) {
-                pathPoints.Add(to);
-                Coord current = to;
-                const int maxSearchDeep = 100;
-                int deep = 0;
-                while (deep < maxSearchDeep) {
-                    for (int i = 0; i < Neigbhors.Length; i++) {
-                        if (moveMarkers[current + Neigbhors[i]] > moveMarkers[current]) {
-                            current = current + Neigbhors[i];
-                            pathPoints.Add(current);
-                            break;
-                        }
-                    }
-                    if (current == from) {
-                        break;
-                    }
-                    deep += 1;
-                }
-                if (pathPoints.Count >= 2) {
-                    pathPoints.Reverse();
-                    return pathPoints;
-                }
-            }
-            Debug.LogError("Error find path by markers set");
-            return new List<Coord>() { from, to };
+        public MarkersSet GetMoveZone(Unit unit) {
+            var unitPathResolver = new UnitPathResolver(this, unit.moveTerrainMask, unit.Faction);
+            return Navigation.GetMoveZone(unit.Coordinate, unitPathResolver, unit.ActionPoints + 1);
         }
 
-        private readonly PriorityQueueCustom<Coord, int> frontier = new PriorityQueueCustom<Coord, int>();
-        private readonly Coord[,] cameFromId;
-        private readonly int[,] distanceToId;
+        public List<Coord> TryFindPath(Coord from, Coord to, MarkersSet moveMarkers) {
+            return Navigation.TryFindPath(from, to, moveMarkers);
+        }
 
         public List<Coord> FindPath(Coord startCoord, Coord endCoord, CellType[] accessibilityMask, Faction faction) {
-            return FindPathAStar(startCoord, endCoord, accessibilityMask, faction);
-        }
-
-        public List<Coord> FindPathDijkstra(Coord startCoord, Coord endCoord, CellType[] accessibilityMask, Faction faction) {
-            frontier.Clear();
-            frontier.Enqueue(startCoord, 0);
-            cameFromId[startCoord.x, startCoord.y] = new Coord();
-            Coord currentId = startCoord;
-
-            for (int x = 0; x < widht; x++) {
-                for (int y = 0; y < height; y++) {
-                    distanceToId[x, y] = int.MaxValue;
-                }
-            }
-            distanceToId[startCoord.x, startCoord.y] = 0;
-            int i;
-            int distance;
-            Coord neigbhor;
-            while (frontier.Count > 0) {
-                currentId = frontier.Dequeue();
-
-                if (currentId == endCoord) {
-                    break;
-                }
-                for (i = 0; i < Neigbhors.Length; i++) {
-                    distance = distanceToId[currentId.x, currentId.y] + 1;
-                    neigbhor = currentId + Neigbhors[i];
-                    if (distance < distanceToId[neigbhor.x, neigbhor.y] && CanMoveThroughCell(this[neigbhor], accessibilityMask, faction)) {
-                        frontier.Enqueue(neigbhor, distance);
-                        cameFromId[neigbhor.x, neigbhor.y] = currentId;
-                        distanceToId[neigbhor.x, neigbhor.y] = distance;
-                    }
-                }
-            }
-            var path = new List<Coord>();
-            if (currentId == endCoord) {
-                path.Add(currentId);
-                while (currentId != startCoord) {
-                    currentId = cameFromId[currentId.x, currentId.y];
-                    path.Add(currentId);
-                }
-            }
-            return path;
-        }
-        
-        public List<Coord> FindPathAStar(Coord startCoord, Coord endCoord, CellType[] accessibilityMask, Faction faction) {
-            frontier.Clear();
-            frontier.Enqueue(startCoord, 0);
-            cameFromId[startCoord.x, startCoord.y] = new Coord();
-            Coord currentId = startCoord;
-
-            for (int x = 0; x < widht; x++) {
-                for (int y = 0; y < height; y++) {
-                    distanceToId[x, y] = int.MaxValue;
-                }
-            }
-            distanceToId[startCoord.x, startCoord.y] = 0;
-            int i;
-            int distance;
-            Coord neigbhor;
-            while (frontier.Count > 0) {
-                currentId = frontier.Dequeue();
-
-                if (currentId == endCoord) {
-                    break;
-                }
-                for (i = 0; i < Neigbhors.Length; i++) {
-                    distance = distanceToId[currentId.x, currentId.y] + 1;
-                    neigbhor = currentId + Neigbhors[i];
-                    if (distance < distanceToId[neigbhor.x, neigbhor.y] && CanMoveThroughCell(this[neigbhor], accessibilityMask, faction)) {
-                        frontier.Enqueue(neigbhor, distance + HeuristicDistance(neigbhor, endCoord));
-                        cameFromId[neigbhor.x, neigbhor.y] = currentId;
-                        distanceToId[neigbhor.x, neigbhor.y] = distance;
-                    }
-                }
-            }
-            var path = new List<Coord>();
-            if (currentId == endCoord) {
-                path.Add(currentId);
-                while (currentId != startCoord) {
-                    currentId = cameFromId[currentId.x, currentId.y];
-                    path.Add(currentId);
-                }
-            }
-            return path;
-        }
-
-        private int HeuristicDistance(Coord from, Coord to) {
-            var fromPosition = new Vector2(from.x + from.y * 0.5f, from.y);
-            var toPosition = new Vector2(to.x + to.y * 0.5f, to.y);
-            return Mathf.CeilToInt(Vector2.Distance(fromPosition, toPosition));
+            var unitPathResolver = new UnitPathResolver(this, accessibilityMask, faction);
+            return Navigation.FindPathAStar(startCoord, endCoord, unitPathResolver);
         }
 
         // public MarkersSet GetFireZone(Unit unit) {
