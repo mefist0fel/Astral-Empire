@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Model {
@@ -23,13 +24,7 @@ namespace Model {
         }
 
         public List<Coord> GetCoordList() {
-            List<Coord> list = new List<Coord>();
-            foreach (var marker in elements) {
-                if (marker.Value > 0) {
-                    list.Add(marker.Key);
-                }
-            }
-            return list;
+            return elements.Keys.ToList();
         }
 
         private void SetElement(Coord coord, int value) {

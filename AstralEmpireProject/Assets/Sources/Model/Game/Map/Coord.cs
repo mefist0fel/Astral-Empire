@@ -46,7 +46,7 @@ public struct Coord {
     }
 
     public override int GetHashCode() {
-        return x + y;
+        return x + y << 16;
     }
 
     public override string ToString() {

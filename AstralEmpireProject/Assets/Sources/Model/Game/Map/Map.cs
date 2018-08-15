@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System;
 using Random = UnityEngine.Random; // TODO remove me
+using System.Linq;
 
 namespace Model {
     /// <summary>
@@ -70,7 +71,7 @@ namespace Model {
                 AddAction(new MoveAction(this[to].Unit, from, to, path));
             }
 #if UNITY_EDITOR
-        else {
+            else {
                 Debug.LogError("move unit error - unit not found or place is not empty");
             }
 #endif
@@ -123,6 +124,8 @@ namespace Model {
             widht = mapWidht;
             height = mapHeight;
             cells = GenerateCells(widht, height);
+            cameFromId = new Coord[widht, height];
+            distanceToId = new int[widht, height];
         }
 
         private Cell[,] GenerateCells(int widht, int height) {
@@ -149,7 +152,7 @@ namespace Model {
                     if (Random.Range(0, 16) == 0) {
                         cells[i, j].Type = CellType.Rough;
                     }
-                    if (Random.Range(0, 6) == 0) {
+                    if (Random.Range(0, 3) == 0) {
                         cells[i, j].Type = CellType.Mountains;
                     }
                 }
@@ -165,116 +168,33 @@ namespace Model {
             unit.AttackUnit(attackedUnit);
         }
 
-        public MarkersSet GetFireZone(Unit unit) {
-            var fireMarkers = new MarkersSet();
-            MarkFireZoneRecursive(fireMarkers, unit.Coordinate, unit.maxFireRange + 1);
-            ClearNearFireZoneRecursive(fireMarkers, unit.Coordinate, unit.minFireRange);
-            MarkEnemyUnitsOnFireZone(fireMarkers, unit);
-            return fireMarkers;
-        }
-
         public MarkersSet GetMoveZone(Unit unit) {
             var moveMarkers = new MarkersSet();
-            MarkMoveZoneRecursive(moveMarkers, unit.Coordinate, unit.moveTerrainMask, unit.moveDistance + 1, unit.Faction);
+            MarkMoveZoneRecursive(moveMarkers, unit.Coordinate, unit.moveTerrainMask, unit.ActionPoints + 1, unit.Faction);
             return moveMarkers;
         }
 
-        private void MarkFireZoneRecursive(MarkersSet markers, Coord startPoint, int fireDistance) { // todo change
-            if (fireDistance <= markers[startPoint])
-                return;
-            markers[startPoint] = fireDistance;
-            for (int i = 0; i < Neigbhors.Length; i++) {
-                MarkFireZoneRecursive(markers, startPoint + Neigbhors[i], fireDistance - 1);
-            }
-        }
-
-        private void ClearNearFireZoneRecursive(MarkersSet markers, Coord startPoint, int clearDistance) { // todo change
-            if (markers[startPoint] == 0)
-                return;
-            if (clearDistance <= 0)
-                return;
-            markers[startPoint] = 0;
-            for (int i = 0; i < Neigbhors.Length; i++) {
-                ClearNearFireZoneRecursive(markers, startPoint + Neigbhors[i], clearDistance - 1);
-            }
-        }
-
-        private void MarkEnemyUnitsOnFireZone(MarkersSet fireMarkers, Unit unit) {
-            List<Coord> fireZoneMarkers = fireMarkers.GetCoordList();
-            foreach (var markerCoord in fireZoneMarkers) {
-                bool isEnemyUnit = (this[markerCoord].Unit != null && this[markerCoord].Unit.IsAlive && this[markerCoord].Unit.Faction != unit.Faction);
-                fireMarkers[markerCoord] = isEnemyUnit ? 1 : 0;
-            }
-        }
-
-        private void MarkMoveZoneRecursive(MarkersSet moveMarkers, Coord startPoint, CellType[] accessibilityMask, int distance, Faction team) {
+        private void MarkMoveZoneRecursive(MarkersSet moveMarkers, Coord startPoint, CellType[] accessibilityMask, int distance, Faction faction) {
             if (distance <= 0)
                 return;
-            bool canMove = false;
-            for (int i = 0; i < accessibilityMask.Length; i++) {
-                if (accessibilityMask[i] == this[startPoint].Type) {
-                    canMove = true;
-                    break;
-                }
-            }
-            if (!canMove)
-                return;
-            if (this[startPoint].Unit != null && team != this[startPoint].Unit.Faction)
+            if (!CanMoveThroughCell(this[startPoint], accessibilityMask, faction))
                 return;
             if (distance <= moveMarkers[startPoint])
                 return;
             moveMarkers[startPoint] = distance;
             for (int i = 0; i < Neigbhors.Length; i++) {
-                MarkMoveZoneRecursive(moveMarkers, startPoint + Neigbhors[i], accessibilityMask, distance - 1, team);
+                MarkMoveZoneRecursive(moveMarkers, startPoint + Neigbhors[i], accessibilityMask, distance - 1, faction);
             }
         }
 
-        public MarkersSet GetFireZoneForMoveZone(Unit unit, MarkersSet moveZone = null) {
-            if (moveZone == null) {
-                moveZone = GetMoveZone(unit);
-            }
-            MarkersSet fullFireZone = new MarkersSet();
-            var moveCoords = moveZone.GetCoordList();
-            foreach (var coord in moveCoords) {
-                if (this[coord].Unit == null) {
-                    MarkersSet localFireMarkers = new MarkersSet();
-                    MarkFireZoneRecursive(localFireMarkers, coord, unit.maxFireRange + 1);
-                    ClearNearFireZoneRecursive(localFireMarkers, coord, unit.minFireRange);
-                    MarkEnemyUnitsOnFireZone(localFireMarkers, unit);
-                    fullFireZone.Add(localFireMarkers);
-                }
-            }
-            return fullFireZone;
+        private bool CanMoveThroughCell(Cell cell, CellType[] accessibilityMask, Faction faction) {
+            if (!accessibilityMask.Contains(cell.Type))
+                return false;
+            if (cell.Unit != null && faction != cell.Unit.Faction)
+                return false;
+            return true;
         }
 
-        public bool IsCanFireFromCoord(Unit unit, Coord coord, Coord fireCoord) {
-            var fireMarkers = new MarkersSet();
-            MarkFireZoneRecursive(fireMarkers, coord, unit.maxFireRange + 1);
-            ClearNearFireZoneRecursive(fireMarkers, coord, unit.minFireRange);
-            bool canFire = (fireMarkers[fireCoord] > 0);
-            return canFire;
-        }
-        internal Coord FindOptimalMovePoint(Unit unit, MarkersSet moveMarkers, Coord fireCoord) {
-            // TODO change to IEnumerator
-            var moveCoords = moveMarkers.GetCoordList();
-            int bestMarker = 0;
-            Coord nearestCoord = Coord.Zero;
-            foreach (var moveCoord in moveCoords) {
-                if (moveMarkers[moveCoord] > bestMarker && (this[moveCoord].Unit == unit || this[moveCoord].Unit == null)) {
-                    var fireMarkers = new MarkersSet();
-                    MarkFireZoneRecursive(fireMarkers, moveCoord, unit.maxFireRange + 1);
-                    ClearNearFireZoneRecursive(fireMarkers, moveCoord, unit.minFireRange);
-                    if (fireMarkers[fireCoord] > 0) {
-                        nearestCoord = moveCoord;
-                        bestMarker = moveMarkers[moveCoord];
-                    }
-                }
-            }
-            if (nearestCoord == Coord.Zero) {
-                Debug.LogError("Can't find nearest fire point");
-            }
-            return nearestCoord;
-        }
         public List<Coord> TryFindPath(Coord from, Coord to, MarkersSet moveMarkers) {
             List<Coord> pathPoints = new List<Coord>();
             if (moveMarkers[to] > 0) {
@@ -300,7 +220,191 @@ namespace Model {
                     return pathPoints;
                 }
             }
+            Debug.LogError("Error find path by markers set");
             return new List<Coord>() { from, to };
         }
+
+        private readonly PriorityQueueCustom<Coord, int> frontier = new PriorityQueueCustom<Coord, int>();
+        private readonly Coord[,] cameFromId;
+        private readonly int[,] distanceToId;
+
+        public List<Coord> FindPath(Coord startCoord, Coord endCoord, CellType[] accessibilityMask, Faction faction) {
+            return FindPathAStar(startCoord, endCoord, accessibilityMask, faction);
+        }
+
+        public List<Coord> FindPathDijkstra(Coord startCoord, Coord endCoord, CellType[] accessibilityMask, Faction faction) {
+            frontier.Clear();
+            frontier.Enqueue(startCoord, 0);
+            cameFromId[startCoord.x, startCoord.y] = new Coord();
+            Coord currentId = startCoord;
+
+            for (int x = 0; x < widht; x++) {
+                for (int y = 0; y < height; y++) {
+                    distanceToId[x, y] = int.MaxValue;
+                }
+            }
+            distanceToId[startCoord.x, startCoord.y] = 0;
+            int i;
+            int distance;
+            Coord neigbhor;
+            while (frontier.Count > 0) {
+                currentId = frontier.Dequeue();
+
+                if (currentId == endCoord) {
+                    break;
+                }
+                for (i = 0; i < Neigbhors.Length; i++) {
+                    distance = distanceToId[currentId.x, currentId.y] + 1;
+                    neigbhor = currentId + Neigbhors[i];
+                    if (distance < distanceToId[neigbhor.x, neigbhor.y] && CanMoveThroughCell(this[neigbhor], accessibilityMask, faction)) {
+                        frontier.Enqueue(neigbhor, distance);
+                        cameFromId[neigbhor.x, neigbhor.y] = currentId;
+                        distanceToId[neigbhor.x, neigbhor.y] = distance;
+                    }
+                }
+            }
+            var path = new List<Coord>();
+            if (currentId == endCoord) {
+                path.Add(currentId);
+                while (currentId != startCoord) {
+                    currentId = cameFromId[currentId.x, currentId.y];
+                    path.Add(currentId);
+                }
+            }
+            return path;
+        }
+        
+        public List<Coord> FindPathAStar(Coord startCoord, Coord endCoord, CellType[] accessibilityMask, Faction faction) {
+            frontier.Clear();
+            frontier.Enqueue(startCoord, 0);
+            cameFromId[startCoord.x, startCoord.y] = new Coord();
+            Coord currentId = startCoord;
+
+            for (int x = 0; x < widht; x++) {
+                for (int y = 0; y < height; y++) {
+                    distanceToId[x, y] = int.MaxValue;
+                }
+            }
+            distanceToId[startCoord.x, startCoord.y] = 0;
+            int i;
+            int distance;
+            Coord neigbhor;
+            while (frontier.Count > 0) {
+                currentId = frontier.Dequeue();
+
+                if (currentId == endCoord) {
+                    break;
+                }
+                for (i = 0; i < Neigbhors.Length; i++) {
+                    distance = distanceToId[currentId.x, currentId.y] + 1;
+                    neigbhor = currentId + Neigbhors[i];
+                    if (distance < distanceToId[neigbhor.x, neigbhor.y] && CanMoveThroughCell(this[neigbhor], accessibilityMask, faction)) {
+                        frontier.Enqueue(neigbhor, distance + HeuristicDistance(neigbhor, endCoord));
+                        cameFromId[neigbhor.x, neigbhor.y] = currentId;
+                        distanceToId[neigbhor.x, neigbhor.y] = distance;
+                    }
+                }
+            }
+            var path = new List<Coord>();
+            if (currentId == endCoord) {
+                path.Add(currentId);
+                while (currentId != startCoord) {
+                    currentId = cameFromId[currentId.x, currentId.y];
+                    path.Add(currentId);
+                }
+            }
+            return path;
+        }
+
+        private int HeuristicDistance(Coord from, Coord to) {
+            var fromPosition = new Vector2(from.x + from.y * 0.5f, from.y);
+            var toPosition = new Vector2(to.x + to.y * 0.5f, to.y);
+            return Mathf.CeilToInt(Vector2.Distance(fromPosition, toPosition));
+        }
+
+        // public MarkersSet GetFireZone(Unit unit) {
+        //     var fireMarkers = new MarkersSet();
+        //     MarkFireZoneRecursive(fireMarkers, unit.Coordinate, unit.maxFireRange + 1);
+        //     ClearNearFireZoneRecursive(fireMarkers, unit.Coordinate, unit.minFireRange);
+        //     MarkEnemyUnitsOnFireZone(fireMarkers, unit);
+        //     return fireMarkers;
+        // }
+
+        //   private void MarkFireZoneRecursive(MarkersSet markers, Coord startPoint, int fireDistance) { // todo change
+        //       if (fireDistance <= markers[startPoint])
+        //           return;
+        //       markers[startPoint] = fireDistance;
+        //       for (int i = 0; i < Neigbhors.Length; i++) {
+        //           MarkFireZoneRecursive(markers, startPoint + Neigbhors[i], fireDistance - 1);
+        //       }
+        //   }
+        //
+        //   private void ClearNearFireZoneRecursive(MarkersSet markers, Coord startPoint, int clearDistance) { // todo change
+        //       if (markers[startPoint] == 0)
+        //           return;
+        //       if (clearDistance <= 0)
+        //           return;
+        //       markers[startPoint] = 0;
+        //       for (int i = 0; i < Neigbhors.Length; i++) {
+        //           ClearNearFireZoneRecursive(markers, startPoint + Neigbhors[i], clearDistance - 1);
+        //       }
+        //   }
+
+        //  private void MarkEnemyUnitsOnFireZone(MarkersSet fireMarkers, Unit unit) {
+        //      List<Coord> fireZoneMarkers = fireMarkers.GetCoordList();
+        //      foreach (var markerCoord in fireZoneMarkers) {
+        //          bool isEnemyUnit = (this[markerCoord].Unit != null && this[markerCoord].Unit.IsAlive && this[markerCoord].Unit.Faction != unit.Faction);
+        //          fireMarkers[markerCoord] = isEnemyUnit ? 1 : 0;
+        //      }
+        //  }
+
+        // public MarkersSet GetFireZoneForMoveZone(Unit unit, MarkersSet moveZone = null) {
+        //     if (moveZone == null) {
+        //         moveZone = GetMoveZone(unit);
+        //     }
+        //     MarkersSet fullFireZone = new MarkersSet();
+        //     var moveCoords = moveZone.GetCoordList();
+        //     foreach (var coord in moveCoords) {
+        //         if (this[coord].Unit == null) {
+        //             MarkersSet localFireMarkers = new MarkersSet();
+        //             MarkFireZoneRecursive(localFireMarkers, coord, unit.maxFireRange + 1);
+        //             ClearNearFireZoneRecursive(localFireMarkers, coord, unit.minFireRange);
+        //             MarkEnemyUnitsOnFireZone(localFireMarkers, unit);
+        //             fullFireZone.Add(localFireMarkers);
+        //         }
+        //     }
+        //     return fullFireZone;
+        // }
+        //
+        // public bool IsCanFireFromCoord(Unit unit, Coord coord, Coord fireCoord) {
+        //     var fireMarkers = new MarkersSet();
+        //     MarkFireZoneRecursive(fireMarkers, coord, unit.maxFireRange + 1);
+        //     ClearNearFireZoneRecursive(fireMarkers, coord, unit.minFireRange);
+        //     bool canFire = (fireMarkers[fireCoord] > 0);
+        //     return canFire;
+        // }
+
+        //  internal Coord FindOptimalMovePoint(Unit unit, MarkersSet moveMarkers, Coord fireCoord) {
+        //      // TODO change to IEnumerator
+        //      var moveCoords = moveMarkers.GetCoordList();
+        //      int bestMarker = 0;
+        //      Coord nearestCoord = Coord.Zero;
+        //      foreach (var moveCoord in moveCoords) {
+        //          if (moveMarkers[moveCoord] > bestMarker && (this[moveCoord].Unit == unit || this[moveCoord].Unit == null)) {
+        //              var fireMarkers = new MarkersSet();
+        //              MarkFireZoneRecursive(fireMarkers, moveCoord, unit.maxFireRange + 1);
+        //              ClearNearFireZoneRecursive(fireMarkers, moveCoord, unit.minFireRange);
+        //              if (fireMarkers[fireCoord] > 0) {
+        //                  nearestCoord = moveCoord;
+        //                  bestMarker = moveMarkers[moveCoord];
+        //              }
+        //          }
+        //      }
+        //      if (nearestCoord == Coord.Zero) {
+        //          Debug.LogError("Can't find nearest fire point");
+        //      }
+        //      return nearestCoord;
+        //  }
+        //
     }
 }

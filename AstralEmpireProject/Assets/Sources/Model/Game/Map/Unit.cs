@@ -31,14 +31,16 @@ namespace Model {
             Coordinate = new Coord();
             HitPoints = maxHitPoints;
             MaxHitPoints = maxHitPoints;
-     //       Model = unitData.Model;
-     //       Name = unitData.Name;
-     //       moveDistance = unitData.MoveDistance;
-     //       moveTerrainMask = GetMaskForType(unitData.MoveType);
-     //       damage = unitData.Damage;
-     //       maxFireRange = unitData.MaxFireRange;
-     //       minFireRange = unitData.MinFireRange;
-        }
+            ActionPoints = maxActionPoints;
+            MaxActionPoints = maxActionPoints;
+        //       Model = unitData.Model;
+        //       Name = unitData.Name;
+        //       moveDistance = unitData.MoveDistance;
+        //       moveTerrainMask = GetMaskForType(unitData.MoveType);
+        //       damage = unitData.Damage;
+        //       maxFireRange = unitData.MaxFireRange;
+        //       minFireRange = unitData.MinFireRange;
+    }
 
       //  private Map.CellType[] GetMaskForType(UnitData.MovingType moveType) {
       //      switch (moveType) {
@@ -113,8 +115,8 @@ namespace Model {
         }
 
         private bool IsCanCounterAttack(Unit unit) {
-            var fireMarkers = map.GetFireZone(this);
-            return fireMarkers[unit.Coordinate] > 0;
+            //  var fireMarkers = map.GetFireZone(this);
+            return false;// fireMarkers[unit.Coordinate] > 0;
         }
     }
 }
