@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Model {
-    public sealed class DeathAction: Map.Action {
+    public sealed class DeathAction: Map.AbstractAction {
         public readonly Unit Unit;
         public readonly Coord Coord;
 

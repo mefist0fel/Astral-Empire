@@ -2,6 +2,7 @@
 using Model;
 using UnityEngine;
 using System.Collections.Generic;
+using System.Linq;
 
 public class GameController : MonoBehaviour, Game.IGameController {
     [SerializeField]
@@ -23,11 +24,19 @@ public class GameController : MonoBehaviour, Game.IGameController {
         };
 
         var map = new Map(wight, height);
+        map.OnAction += OnAddActionHandler;
         game = new Game(this, map, factions);
         mapView.Init(map);
         playerController.Init(game);
         CameraController.SetBorders(mapView.GetBorders(map));
         CreateDummyUnits(10);
+    }
+
+    private void OnAddActionHandler(Map.AbstractAction action) {
+        if (action is MoveAction) {
+            var moveAction = action as MoveAction;
+            unitViews[moveAction.Unit].MoveTo(moveAction.Path.Select(coord => mapView.CellCoordToPosition(coord)).ToArray());
+        }
     }
 
     private void CreateDummyUnits(int count) {

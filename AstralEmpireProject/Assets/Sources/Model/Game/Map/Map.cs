@@ -10,7 +10,7 @@ namespace Model {
     /// Map. Base class to store cell structure and manage paht finding and fire range
     /// </summary>
     public class Map {
-        public abstract class Action { }
+        public abstract class AbstractAction { }
 
         private const int defaultSize = 21;
         private readonly int width;
@@ -20,8 +20,9 @@ namespace Model {
         public int Height { get { return height; } }
 
         public Cell[,] cells = null;
-        public List<Action> actions = new List<Action>();
+        public List<AbstractAction> actions = new List<AbstractAction>();
         public readonly Navigation Navigation;
+        public event System.Action<AbstractAction> OnAction;
 
         public enum CellType {
             None = 0, // nothing - end of map move zone
@@ -161,8 +162,9 @@ namespace Model {
             return cells;
         }
 
-        public void AddAction(Action action) {
+        public void AddAction(AbstractAction action) {
             actions.Add(action);
+            OnAction.InvokeSafe(action);
         }
 
         public void AttackUnit(Unit unit, Unit attackedUnit) {
@@ -186,8 +188,9 @@ namespace Model {
             return Navigation.TryFindPath(from, to, moveMarkers);
         }
 
-        public List<Coord> FindPath(Coord startCoord, Coord endCoord, CellType[] accessibilityMask, Faction faction) {
-            var unitPathResolver = new UnitPathResolver(this, accessibilityMask, faction);
+        public List<Coord> FindPath(Unit unit, Coord endCoord) {
+            Coord startCoord = unit.Coordinate;
+            var unitPathResolver = new UnitPathResolver(this, unit.moveTerrainMask, unit.Faction);
             return Navigation.FindPathAStar(startCoord, endCoord, unitPathResolver);
         }
 

@@ -122,6 +122,7 @@ namespace Model.PathFind {
                     currentId = cameFromId[currentId.x, currentId.y];
                     path.Add(currentId);
                 }
+                path.Reverse();
             }
             return path;
         }
@@ -164,6 +165,7 @@ namespace Model.PathFind {
                     currentId = cameFromId[currentId.x, currentId.y];
                     path.Add(currentId);
                 }
+                path.Reverse();
             }
             return path;
         }

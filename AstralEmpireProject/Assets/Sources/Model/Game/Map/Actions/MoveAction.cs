@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Model {
-    public sealed class MoveAction : Map.Action {
+    public sealed class MoveAction : Map.AbstractAction {
         public readonly Unit Unit;
         public readonly Coord FromCoord;
         public readonly Coord ToCoord;

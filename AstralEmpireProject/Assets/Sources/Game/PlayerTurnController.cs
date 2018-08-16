@@ -2,6 +2,7 @@
 using Model;
 using UnityEngine;
 using System.Linq;
+using System.Collections.Generic;
 
 public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
     [SerializeField]
@@ -20,7 +21,9 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
     private CameraControlModel cameraModel = null;
     private Game game = null;
 
-    private Unit selectedUnit;
+    private Dictionary<Unit, Coord> unitTargetPoints = new Dictionary<Unit, Coord>();
+    private Unit selectedUnit = null;
+    private Coord selectedCoord = new Coord();
 
     public void Init(Game game) {
         this.game = game;
@@ -50,12 +53,20 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
             }
         } else {
             if (cell.Unit == null) {
-                // var path2 = game.Map.FindPathDijkstra(selectedUnit.Coordinate, pointerCoord, selectedUnit.moveTerrainMask, selectedUnit.Faction);
-                // var markers2Positions = path2.Select((coord) => mapView.CellCoordToPosition(coord)).ToList();
-                // fireMarkersView.Show(markers2Positions);
-                var path = game.Map.FindPath(selectedUnit.Coordinate, pointerCoord, selectedUnit.moveTerrainMask, selectedUnit.Faction);
-                var markersPositions = path.Select((coord) => mapView.CellCoordToPosition(coord)).ToList();
-                moveMarkersView.Show(markersPositions);
+                if (selectedCoord == pointerCoord) {
+                    if (unitTargetPoints.ContainsKey(selectedUnit)) {
+                        unitTargetPoints[selectedUnit] = selectedCoord;
+                    } else {
+                        unitTargetPoints.Add(selectedUnit, selectedCoord);
+                    }
+                    MoveUnitToTarget(selectedUnit, selectedCoord);
+                    SelectUnit(null);
+                } else {
+                    selectedCoord = pointerCoord;
+                    var path = game.Map.FindPath(selectedUnit, pointerCoord);
+                    var markersPositions = path.Select((coord) => mapView.CellCoordToPosition(coord)).ToList();
+                    moveMarkersView.Show(markersPositions);
+                }
             } else {
                 SelectUnit(cell.Unit);
             }
@@ -63,8 +74,40 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
         ShowStatus(cell, pointerCoord);
     }
 
+    private void MoveUnitToTarget(Unit unit, Coord target) {
+        if (unit.Coordinate == target) {
+            unitTargetPoints.Remove(unit);
+            return;
+        }
+        var pathCoords = game.Map.FindPath(selectedUnit, target);
+        if (pathCoords.Count == 0) {
+            unitTargetPoints.Remove(unit);
+            return;
+        }
+        var moveZone = game.Map.GetMoveZone(unit);
+        var targetToNearTurn = FindFarestPointInPath(pathCoords, moveZone);
+        game.Map.MoveUnit(unit.Coordinate, targetToNearTurn, moveZone);
+    }
+
+    private Coord FindFarestPointInPath(List<Coord> pathCoords, MarkersSet moveZone) {
+        var pathCoord = pathCoords.First();
+        Coord nextCoord;
+        for (int i = 1; i < pathCoords.Count; i++) {
+            nextCoord = pathCoords[i];
+            if (moveZone[nextCoord] == 0)
+                return pathCoord;
+            pathCoord = nextCoord;
+        }
+        return pathCoord;
+    }
+
     private void SelectUnit(Unit unit) {
         selectedUnit = unit;
+        if (unit == null) {
+            moveZoneMarkersView.Hide();
+            moveMarkersView.Hide();
+            return;
+        }
         var moveMarkers = game.Map.GetMoveZone(unit);
         var markersPositions = moveMarkers.GetCoordList().Select((coord) => mapView.CellCoordToPosition(coord)).ToList();
         moveZoneMarkersView.Show(markersPositions);

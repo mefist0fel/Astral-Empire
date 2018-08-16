@@ -5,6 +5,8 @@ using Random = UnityEngine.Random;
 
 public sealed class UnitView : MonoBehaviour {
     [SerializeField]
+    private float moveSpeed = 1f;
+    [SerializeField]
     private Unit unit = null;
 
     // [SerializeField]
@@ -28,6 +30,12 @@ public sealed class UnitView : MonoBehaviour {
     }
 
     public void MoveTo(Vector3[] path, Action endMoveAction = null) {
+        var moveBesie = new BesieCurve(path);
+        Timer.Add(moveBesie.Lenght / moveSpeed, (anim) => {
+            if (this == null)
+                return;
+            transform.position = moveBesie.GetPositionOnCurve(moveBesie.Lenght * anim);
+        }, endMoveAction);
      //   hullView.Move(path, endMoveAction);
     }
 

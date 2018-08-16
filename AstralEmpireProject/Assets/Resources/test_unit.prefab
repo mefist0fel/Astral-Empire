@@ -124,6 +124,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71d482e42a6e103439a00bc8ebe3dd42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  moveSpeed: 8
   unit:
     moveDistance: 0
     moveTerrainMask: 
@@ -131,7 +132,4 @@ MonoBehaviour:
     maxFireRange: 0
     minFireRange: 0
     movePath: []
-    coord:
-      x: 0
-      y: 0
   lifeLabel: {fileID: 0}

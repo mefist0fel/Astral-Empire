@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Model {
-    public sealed class AttackAction : Map.Action {
+    public sealed class AttackAction : Map.AbstractAction {
         public readonly Unit AttackerUnit;
         public readonly Unit DefenciveUnit;
         public readonly int Damage;

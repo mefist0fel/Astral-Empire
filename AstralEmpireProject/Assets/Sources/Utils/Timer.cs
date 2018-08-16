@@ -1,28 +1,24 @@
 ﻿using UnityEngine;
-using System.Collections;
+using System;
 
 public class Timer : MonoBehaviour {
 
 	static Timer instance = null;
 
-	public delegate void ResultAction ();
-
-	public delegate void AnimateAction (float t);
-
 	float[] timers = new float[10];
 	float[] animationTime = new float[10];
-	AnimateAction[] animateAction = new AnimateAction[10];
-	ResultAction[]  endAction     = new ResultAction[10];
+	Action<float>[] animateAction = new Action<float>[10];
+	Action[]  endAction     = new Action[10];
 
-	public static int Add(float time, ResultAction resultAction) {
+	public static int Add(float time, Action resultAction) {
 		return Add(0, time, null, resultAction);
 	}
 
-	public static int Add(float fullTime, AnimateAction animateAction, ResultAction resultAction = null) {
+	public static int Add(float fullTime, Action<float> animateAction, Action resultAction = null) {
 		return Add(0, fullTime, animateAction, resultAction);
 	}
 
-	public static int Add(float startTime, float fullTime, AnimateAction animateAction, ResultAction resultAction = null) {
+	public static int Add(float startTime, float fullTime, Action<float> animateAction, Action resultAction = null) {
 		if (instance == null) {
 			Timer timer = GameObject.FindObjectOfType<Timer>();
 			if (timer != null) {
@@ -46,7 +42,7 @@ public class Timer : MonoBehaviour {
 		}
 	}
 
-	int AddTimer (float startTime, float actionTime, AnimateAction animAction, ResultAction resultAction) {
+	int AddTimer (float startTime, float actionTime, Action<float> animAction, Action resultAction) {
 		for (int i = 0; i < timers.Length; i++) {
 			if (timers[i] <= 0 && endAction[i] == null && animateAction[i] == null) {
 				timers[i] 		 = actionTime - startTime;
@@ -61,8 +57,8 @@ public class Timer : MonoBehaviour {
 		// increase arr size
 		float[] newTimers = new float[tempNum + 5];
 		float[] newAnimationTime = new float[tempNum + 5];
-		AnimateAction[] newAnimateAction = new AnimateAction[tempNum + 5];
-		ResultAction[]  newEndAction     = new ResultAction[tempNum + 5];
+        Action<float>[] newAnimateAction = new Action<float>[tempNum + 5];
+        Action[]  newEndAction           = new Action[tempNum + 5];
 		// replace old values in new Array
 		for (int i = 0; i < timers.Length; i++) {
 			newTimers[i]        = timers[i];
