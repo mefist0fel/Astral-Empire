@@ -20,7 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4186938674201696}
   m_Layer: 0
-  m_Name: AttackMarker
+  m_Name: MoveZoneMarker
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -64,8 +64,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1793746426079150}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.07, z: 0}
-  m_LocalScale: {x: 0.6, y: 0.14, z: 0.6}
+  m_LocalPosition: {x: 0, y: 0.05, z: 0}
+  m_LocalScale: {x: 0.8, y: 0.1, z: 0.8}
   m_Children: []
   m_Father: {fileID: 4186938674201696}
   m_RootOrder: 0
@@ -85,7 +85,7 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RenderingLayerMask: 4294967295
   m_Materials:
-  - {fileID: 2100000, guid: f66f61b329b95204987150c15547b30f, type: 2}
+  - {fileID: 2100000, guid: 7b7f2eb5a9c9f274391e4ebcbb070d71, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0

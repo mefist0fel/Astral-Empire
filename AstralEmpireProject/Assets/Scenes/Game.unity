@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657868, g: 0.49641263, b: 0.57481706, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -195,7 +195,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 872727459}
-  m_RootOrder: 0
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &376894145
 MonoBehaviour:
@@ -209,6 +209,48 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   moveMarkerPrefab: {fileID: 1489068653360458, guid: 99933117075be7144acc1bc314d2e63a,
+    type: 2}
+--- !u!1 &463109494
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 463109495}
+  - component: {fileID: 463109496}
+  m_Layer: 0
+  m_Name: MoveZoneMarkersView
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &463109495
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 463109494}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 872727459}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &463109496
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 463109494}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a059428f66faa84438d268e8e877a82f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  moveMarkerPrefab: {fileID: 1489068653360458, guid: e22132a1621acb549a98f2a73a4e09f4,
     type: 2}
 --- !u!1 &704953740
 GameObject:
@@ -305,6 +347,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mapView: {fileID: 134437006}
   cameraController: {fileID: 1243998249}
+  moveZoneMarkersView: {fileID: 463109496}
   moveMarkersView: {fileID: 376894145}
   fireMarkersView: {fileID: 1842350066}
 --- !u!4 &872727459
@@ -317,6 +360,7 @@ Transform:
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
+  - {fileID: 463109495}
   - {fileID: 376894144}
   - {fileID: 1842350065}
   m_Father: {fileID: 1000062159}
@@ -759,7 +803,7 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 872727459}
-  m_RootOrder: 1
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &1842350066
 MonoBehaviour:

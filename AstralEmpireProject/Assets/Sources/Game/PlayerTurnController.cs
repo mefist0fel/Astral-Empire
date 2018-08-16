@@ -9,6 +9,8 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
     [SerializeField]
     private CameraController cameraController = null;
     [SerializeField]
+    private MarkersCollectionView moveZoneMarkersView = null;
+    [SerializeField]
     private MarkersCollectionView moveMarkersView = null;
     [SerializeField]
     private MarkersCollectionView fireMarkersView = null;
@@ -65,7 +67,7 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
         selectedUnit = unit;
         var moveMarkers = game.Map.GetMoveZone(unit);
         var markersPositions = moveMarkers.GetCoordList().Select((coord) => mapView.CellCoordToPosition(coord)).ToList();
-        moveMarkersView.Show(markersPositions);
+        moveZoneMarkersView.Show(markersPositions);
     }
 
     private void ShowStatus(Map.Cell cell, Coord coord) {
