@@ -68,9 +68,9 @@ namespace Model {
             Name = "Unit_" + team.Name;
         }
 
-        public void MoveTo(Map map, Coord newCoord) {
-            // canMove = false;
+        public void MoveTo(Coord newCoord, int actionPoints) {
             Coordinate = newCoord;
+            ActionPoints -= actionPoints;
         }
 
         public void AttackUnit(Unit enemy) {

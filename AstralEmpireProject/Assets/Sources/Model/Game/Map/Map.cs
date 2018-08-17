@@ -68,10 +68,11 @@ namespace Model {
             }
             if (this[from].Unit != null && this[to].Unit == null) {
                 var path = TryFindPath(from, to, moveMarkers); // TODO find separately for unit
+                var actionPoints = this[from].Unit.ActionPoints - moveMarkers[to] - 1;
                 this[to].Unit = this[from].Unit;
                 this[from].Unit = null;
-                this[to].Unit.MoveTo(this, to);
-                AddAction(new MoveAction(this[to].Unit, from, to, path));
+                this[to].Unit.MoveTo(to, actionPoints);
+                AddAction(new MoveAction(this[to].Unit, from, to, actionPoints, path));
             }
 #if UNITY_EDITOR
             else {
