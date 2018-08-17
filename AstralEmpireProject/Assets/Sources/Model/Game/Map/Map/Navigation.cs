@@ -19,6 +19,7 @@ namespace Model.PathFind {
             height = map.Height;
             cameFromCoord = new Coord[width, height];
             distanceToId = new int[width, height];
+            ClearDistances();
         }
 
         // -1: 1  --  0: 1  --  1: 1
@@ -35,6 +36,10 @@ namespace Model.PathFind {
             new Coord(-1, 1),
             new Coord( 0, 1),
         };
+        // For debug purposes
+        public int[,] GetDistanceMap() {
+            return distanceToId;
+        }
 
         public MarkersSet GetMoveZone(Unit unit) {
             var moveMarkers = new MarkersSet();
@@ -90,28 +95,23 @@ namespace Model.PathFind {
             frontier.Enqueue(startCoord, 0);
             cameFromCoord[startCoord.x, startCoord.y] = new Coord();
             Coord currentCoord = startCoord;
-
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    distanceToId[x, y] = int.MaxValue;
-                }
-            }
+            ClearDistances();
             distanceToId[startCoord.x, startCoord.y] = 0;
             int i;
             int distance;
             Coord neigbhorCoord;
-            bool unitOnCurrentCell;
+           // bool unitOnCurrentCell;
             while (frontier.Count > 0) {
                 currentCoord = frontier.Dequeue();
                 if (currentCoord == endCoord)
                     break;
-                unitOnCurrentCell = map[currentCoord].HasUnit;
+               // unitOnCurrentCell = map[currentCoord].HasUnit;
 
                 for (i = 0; i < Neigbhors.Length; i++) {
                     neigbhorCoord = currentCoord + Neigbhors[i];
                     distance = distanceToId[currentCoord.x, currentCoord.y] + map[neigbhorCoord].MoveCost;
                     if (distance < distanceToId[neigbhorCoord.x, neigbhorCoord.y] && CanMoveThrough(neigbhorCoord, unit)) {
-                        frontier.Enqueue(neigbhorCoord, distance + HeuristicDistance(neigbhorCoord, endCoord) + (unitOnCurrentCell ? 2 : 0));
+                        frontier.Enqueue(neigbhorCoord, (distance + HeuristicDistance(neigbhorCoord, endCoord)) * 2 + (map[neigbhorCoord].HasUnit ? 1 : 0));
                         cameFromCoord[neigbhorCoord.x, neigbhorCoord.y] = currentCoord;
                         distanceToId[neigbhorCoord.x, neigbhorCoord.y] = distance;
                     }
@@ -120,6 +120,14 @@ namespace Model.PathFind {
             if (currentCoord == endCoord)
                 return FindPathBackTrace(startCoord, endCoord);
             return new List<Coord>();
+        }
+
+        private void ClearDistances() {
+            for (int x = 0; x < width; x++) {
+                for (int y = 0; y < height; y++) {
+                    distanceToId[x, y] = int.MaxValue;
+                }
+            }
         }
 
         private bool CanMoveThrough(Coord coord, Unit unit) {
@@ -143,9 +151,11 @@ namespace Model.PathFind {
         }
 
         private int HeuristicDistance(Coord from, Coord to) {
-            var fromPosition = new Vector2(from.x + from.y * 0.5f, from.y);
-            var toPosition = new Vector2(to.x + to.y * 0.5f, to.y);
-            return Mathf.CeilToInt(Vector2.Distance(fromPosition, toPosition));
+            const float triangleHeight = 0.866f;
+            var fromPosition = new Vector2(from.x + from.y * 0.5f, from.y * triangleHeight);
+            var toPosition = new Vector2(to.x + to.y * 0.5f, to.y * triangleHeight);
+            const float heuristicAttenuationFactor = 1.3f;
+            return Mathf.CeilToInt(Vector2.Distance(fromPosition, toPosition) * heuristicAttenuationFactor);
         }
     }
 }

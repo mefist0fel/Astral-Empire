@@ -1,8 +1,9 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 
 namespace Model {
-    public sealed class PriorityQueueCustom<P, T> where T : IComparable {
+    public sealed class PriorityQueueCustom<P, T>: IEnumerable<P> where T : IComparable {
 
         private readonly List<P> itemList;
         private readonly List<T> orderList;
@@ -69,6 +70,14 @@ namespace Model {
 
         public void Clear() {
             orderList.Clear();
+        }
+
+        public IEnumerator<P> GetEnumerator() {
+            return itemList.GetEnumerator();
+        }
+
+        IEnumerator IEnumerable.GetEnumerator() {
+            return itemList.GetEnumerator();
         }
     }
 }

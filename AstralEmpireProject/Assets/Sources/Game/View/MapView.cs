@@ -12,6 +12,7 @@ public sealed class MapView : MonoBehaviour {
     private Vector2 size = Vector2.one;
     [SerializeField]
     private Vector3 mapShift = Vector3.zero;
+    private Map map;
 
     [Serializable]
     public sealed class CellPreset {
@@ -30,7 +31,8 @@ public sealed class MapView : MonoBehaviour {
         return new Coord(x, y);
     }
 
-    public void Init(Map map) {
+    public void Init(Map controlMap) {
+        map = controlMap;
         mapShift = -CellCoordToPosition(new Coord((map.Width - 1) * 0.5f, (map.Height - 1) * 0.5f));
         for (int i = 0; i < map.Width; i++) {
             for (int j = 0; j < map.Height; j++) {
@@ -74,4 +76,19 @@ public sealed class MapView : MonoBehaviour {
         cellObject.transform.position = position;
         cellObject.transform.localRotation = Quaternion.Euler(0, Random.Range(0, 4) * 90f, 0);
     }
+
+#if UNITY_EDITOR
+    private void OnDrawGizmos() {
+        if (map == null)
+            return;
+        var distances = map.Navigation.GetDistanceMap();
+        for (int i = 0; i < map.Width; i++) {
+            for (int j = 0; j < map.Height; j++) {
+                if (distances[i, j] < int.MaxValue) {
+                    UnityEditor.Handles.Label(CellCoordToPosition(new Coord(i, j)), distances[i, j].ToString());
+                }
+            }
+        }
+    }
+#endif
 }
