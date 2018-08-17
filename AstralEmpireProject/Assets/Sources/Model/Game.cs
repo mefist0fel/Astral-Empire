@@ -18,7 +18,7 @@ namespace Model {
         }
 
         public void CreateUnit(Faction faction, Coord position) {
-            var unit = new Unit("test", 10, 2);
+            var unit = new Unit("test", 10, 3);
             unit.Init(Map, faction, position);
             Units.Add(unit);
             faction.Units.Add(unit);

@@ -16,7 +16,7 @@ namespace Model {
         private readonly int width;
         private readonly int height;
 
-        public int Widht { get { return width; } }
+        public int Width { get { return width; } }
         public int Height { get { return height; } }
 
         public Cell[,] cells = null;
@@ -35,11 +35,16 @@ namespace Model {
         public class Cell {
             public Unit Unit = null;
             public CellType Type = CellType.None;
+            public int MoveCost = 1;
 
             public Unit GetUnit() {
-                if (Unit != null && Unit.IsAlive)
+                if (HasUnit)
                     return Unit;
                 return null;
+            }
+
+            public bool HasUnit {
+                get { return (Unit != null && Unit.IsAlive); }
             }
         }
 
@@ -68,7 +73,7 @@ namespace Model {
             }
             if (this[from].Unit != null && this[to].Unit == null) {
                 var path = TryFindPath(from, to, moveMarkers); // TODO find separately for unit
-                var actionPoints = this[from].Unit.ActionPoints - moveMarkers[to] - 1;
+                var actionPoints = this[from].Unit.ActionPoints - moveMarkers[to];
                 this[to].Unit = this[from].Unit;
                 this[from].Unit = null;
                 this[to].Unit.MoveTo(to, actionPoints);
@@ -128,7 +133,7 @@ namespace Model {
             width = mapWidth;
             height = mapHeight;
             cells = GenerateCells(width, height);
-            Navigation = new Navigation(width, height);
+            Navigation = new Navigation(this);
         }
 
         private Cell[,] GenerateCells(int widht, int height) {
@@ -154,6 +159,7 @@ namespace Model {
                     cells[i, j].Type = CellType.Land;
                     if (Random.Range(0, 8) == 0) {
                         cells[i, j].Type = CellType.Rough;
+                        cells[i, j].MoveCost = 2;
                     }
                     if (Random.Range(0, 16) == 0) {
                         cells[i, j].Type = CellType.Mountains;
@@ -181,8 +187,7 @@ namespace Model {
         }
 
         public MarkersSet GetMoveZone(Unit unit) {
-            var unitPathResolver = new UnitPathResolver(this, unit.moveTerrainMask, unit.Faction);
-            return Navigation.GetMoveZone(unit.Coordinate, unitPathResolver, unit.ActionPoints + 1);
+            return Navigation.GetMoveZone(unit);
         }
 
         public List<Coord> TryFindPath(Coord from, Coord to, MarkersSet moveMarkers) {
@@ -190,9 +195,7 @@ namespace Model {
         }
 
         public List<Coord> FindPath(Unit unit, Coord endCoord) {
-            Coord startCoord = unit.Coordinate;
-            var unitPathResolver = new UnitPathResolver(this, unit.moveTerrainMask, unit.Faction);
-            return Navigation.FindPathAStar(startCoord, endCoord, unitPathResolver);
+            return Navigation.FindPathAStar(unit.Coordinate, endCoord, unit);
         }
 
         // public MarkersSet GetFireZone(Unit unit) {

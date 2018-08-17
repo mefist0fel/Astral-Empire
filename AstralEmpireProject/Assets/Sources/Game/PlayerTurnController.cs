@@ -48,9 +48,7 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
         var pointerCoord = mapView.CellPositionToCoord(floorPosition);
         var cell = game.Map[pointerCoord];
         if (selectedUnit == null) {
-            if (cell.Unit != null && cell.Unit.Faction == currentFaction) {
-                SelectUnit(cell.Unit);
-            }
+            SelectUnit(cell.Unit);
         } else {
             if (cell.Unit == null) {
                 if (selectedCoord == pointerCoord) {
@@ -94,20 +92,26 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
         Coord nextCoord;
         for (int i = 1; i < pathCoords.Count; i++) {
             nextCoord = pathCoords[i];
-            if (moveZone[nextCoord] == 0)
+            if (moveZone[nextCoord] < 0)
                 return pathCoord;
-            pathCoord = nextCoord;
+            if (!game.Map[nextCoord].HasUnit)
+                pathCoord = nextCoord;
         }
         return pathCoord;
     }
 
     private void SelectUnit(Unit unit) {
         selectedUnit = unit;
+        moveMarkersView.Hide();
         if (unit == null) {
             moveZoneMarkersView.Hide();
-            moveMarkersView.Hide();
             return;
         }
+        if (unit.Faction != currentFaction) {
+            moveZoneMarkersView.Hide();
+            return;
+        }
+        selectedCoord = unit.Coordinate;
         var moveMarkers = game.Map.GetMoveZone(unit);
         var markersPositions = moveMarkers.GetCoordList().Select((coord) => mapView.CellCoordToPosition(coord)).ToList();
         moveZoneMarkersView.Show(markersPositions);

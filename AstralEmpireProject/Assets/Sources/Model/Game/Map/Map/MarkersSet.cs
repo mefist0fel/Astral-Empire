@@ -1,11 +1,9 @@
-﻿using System;
-using System.Collections;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Linq;
-using UnityEngine;
 
 namespace Model {
-    public class MarkersSet {
+    public sealed class MarkersSet {
+        public const int Empty = -1;
 
         private Dictionary<Coord, int> elements = new Dictionary<Coord, int>();
 
@@ -28,7 +26,7 @@ namespace Model {
         }
 
         private void SetElement(Coord coord, int value) {
-            if (value == 0) {
+            if (value <= Empty) {
                 if (elements.ContainsKey(coord))
                     elements.Remove(coord);
                 return;
@@ -44,12 +42,12 @@ namespace Model {
             if (elements.ContainsKey(coord)) {
                 return elements[coord];
             }
-            return 0;
+            return Empty;
         }
 
         internal void Add(MarkersSet markers) {
             foreach (var marker in markers.elements) {
-                if (marker.Value > 0) {
+                if (marker.Value > Empty) {
                     if (!elements.ContainsKey(marker.Key)) {
                         elements.Add(marker.Key, marker.Value);
                     }

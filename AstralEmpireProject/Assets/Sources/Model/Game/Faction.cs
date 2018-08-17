@@ -30,9 +30,10 @@ namespace Model {
 
         public void OnStartTurn() {
             foreach (var unit in Units) {
-                if (unit == null && unit.IsAlive) {
+                if (unit == null)
+                    continue;
+                if (unit.IsAlive)
                     unit.OnStartTurn();
-                }
             }
             if (controller != null) {
                 controller.OnStartTurn(this);

@@ -1,23 +1,23 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 namespace Model.PathFind {
     public sealed class Navigation {
-        public interface IPathResolver {
-            bool CanMoveThrough(Coord coord);
-        }
-
         private readonly PriorityQueueCustom<Coord, int> frontier = new PriorityQueueCustom<Coord, int>();
-        private readonly Coord[,] cameFromId;
+        private readonly Coord[,] cameFromCoord;
         private readonly int[,] distanceToId;
 
         private readonly int width;
         private readonly int height;
+        private readonly Map map;
 
-        public Navigation(int mapWidth, int mapHeight) {
-            width = mapWidth;
-            height = mapHeight;
-            cameFromId = new Coord[width, height];
+        public Navigation(Map contolMap) {
+            map = contolMap;
+            width = map.Width;
+            height = map.Height;
+            cameFromCoord = new Coord[width, height];
             distanceToId = new int[width, height];
         }
 
@@ -36,28 +36,29 @@ namespace Model.PathFind {
             new Coord( 0, 1),
         };
 
-        public MarkersSet GetMoveZone(Coord coordinate, IPathResolver pathResolver, int distance) {
+        public MarkersSet GetMoveZone(Unit unit) {
             var moveMarkers = new MarkersSet();
-            MarkMoveZoneRecursive(moveMarkers, coordinate, pathResolver, distance);
+            MarkMoveZoneRecursive(moveMarkers, unit.Coordinate, unit, unit.ActionPoints + 1);
             return moveMarkers;
         }
 
-        private void MarkMoveZoneRecursive(MarkersSet moveMarkers, Coord startPoint, IPathResolver pathResolver, int distance) {
-            if (distance <= 0)
+        private void MarkMoveZoneRecursive(MarkersSet moveMarkers, Coord coord, Unit unit, int actionPoints) {
+            actionPoints -= map[coord].MoveCost;
+            if (actionPoints < 0)
                 return;
-            if (!pathResolver.CanMoveThrough(startPoint))
+            if (!CanMoveThrough(coord, unit))
                 return;
-            if (distance <= moveMarkers[startPoint])
+            if (actionPoints <= moveMarkers[coord])
                 return;
-            moveMarkers[startPoint] = distance;
+            moveMarkers[coord] = actionPoints;
             for (int i = 0; i < Neigbhors.Length; i++) {
-                MarkMoveZoneRecursive(moveMarkers, startPoint + Neigbhors[i], pathResolver, distance - 1);
+                MarkMoveZoneRecursive(moveMarkers, coord + Neigbhors[i], unit, actionPoints);
             }
         }
 
         public List<Coord> TryFindPath(Coord from, Coord to, MarkersSet moveMarkers) {
             List<Coord> pathPoints = new List<Coord>();
-            if (moveMarkers[to] > 0) {
+            if (moveMarkers[to] >= 0) {
                 pathPoints.Add(to);
                 Coord current = to;
                 const int maxSearchDeep = 100;
@@ -84,11 +85,11 @@ namespace Model.PathFind {
             return new List<Coord>() { from, to };
         }
 
-        public List<Coord> FindPathDijkstra(Coord startCoord, Coord endCoord, IPathResolver pathResolver) {
+        public List<Coord> FindPathAStar(Coord startCoord, Coord endCoord, Unit unit) {
             frontier.Clear();
             frontier.Enqueue(startCoord, 0);
-            cameFromId[startCoord.x, startCoord.y] = new Coord();
-            Coord currentId = startCoord;
+            cameFromCoord[startCoord.x, startCoord.y] = new Coord();
+            Coord currentCoord = startCoord;
 
             for (int x = 0; x < width; x++) {
                 for (int y = 0; y < height; y++) {
@@ -98,75 +99,46 @@ namespace Model.PathFind {
             distanceToId[startCoord.x, startCoord.y] = 0;
             int i;
             int distance;
-            Coord neigbhor;
+            Coord neigbhorCoord;
+            bool unitOnCurrentCell;
             while (frontier.Count > 0) {
-                currentId = frontier.Dequeue();
-
-                if (currentId == endCoord) {
+                currentCoord = frontier.Dequeue();
+                if (currentCoord == endCoord)
                     break;
-                }
+                unitOnCurrentCell = map[currentCoord].HasUnit;
+
                 for (i = 0; i < Neigbhors.Length; i++) {
-                    distance = distanceToId[currentId.x, currentId.y] + 1;
-                    neigbhor = currentId + Neigbhors[i];
-                    if (distance < distanceToId[neigbhor.x, neigbhor.y] && pathResolver.CanMoveThrough(neigbhor)) {
-                        frontier.Enqueue(neigbhor, distance);
-                        cameFromId[neigbhor.x, neigbhor.y] = currentId;
-                        distanceToId[neigbhor.x, neigbhor.y] = distance;
+                    neigbhorCoord = currentCoord + Neigbhors[i];
+                    distance = distanceToId[currentCoord.x, currentCoord.y] + map[neigbhorCoord].MoveCost;
+                    if (distance < distanceToId[neigbhorCoord.x, neigbhorCoord.y] && CanMoveThrough(neigbhorCoord, unit)) {
+                        frontier.Enqueue(neigbhorCoord, distance + HeuristicDistance(neigbhorCoord, endCoord) + (unitOnCurrentCell ? 2 : 0));
+                        cameFromCoord[neigbhorCoord.x, neigbhorCoord.y] = currentCoord;
+                        distanceToId[neigbhorCoord.x, neigbhorCoord.y] = distance;
                     }
                 }
             }
-            var path = new List<Coord>();
-            if (currentId == endCoord) {
-                path.Add(currentId);
-                while (currentId != startCoord) {
-                    currentId = cameFromId[currentId.x, currentId.y];
-                    path.Add(currentId);
-                }
-                path.Reverse();
-            }
-            return path;
+            if (currentCoord == endCoord)
+                return FindPathBackTrace(startCoord, endCoord);
+            return new List<Coord>();
         }
 
-        public List<Coord> FindPathAStar(Coord startCoord, Coord endCoord, IPathResolver pathResolver) {
-            frontier.Clear();
-            frontier.Enqueue(startCoord, 0);
-            cameFromId[startCoord.x, startCoord.y] = new Coord();
-            Coord currentId = startCoord;
+        private bool CanMoveThrough(Coord coord, Unit unit) {
+            var cell = map[coord];
+            if (cell.Unit != null && unit.Faction != cell.Unit.Faction)
+                return false;
+            if (!unit.MoveTerrainMask.Contains(cell.Type))
+                return false;
+            return true;
+        }
 
-            for (int x = 0; x < width; x++) {
-                for (int y = 0; y < height; y++) {
-                    distanceToId[x, y] = int.MaxValue;
-                }
-            }
-            distanceToId[startCoord.x, startCoord.y] = 0;
-            int i;
-            int distance;
-            Coord neigbhor;
-            while (frontier.Count > 0) {
-                currentId = frontier.Dequeue();
-
-                if (currentId == endCoord) {
-                    break;
-                }
-                for (i = 0; i < Neigbhors.Length; i++) {
-                    distance = distanceToId[currentId.x, currentId.y] + 1;
-                    neigbhor = currentId + Neigbhors[i];
-                    if (distance < distanceToId[neigbhor.x, neigbhor.y] && pathResolver.CanMoveThrough(neigbhor)) {
-                        frontier.Enqueue(neigbhor, distance + HeuristicDistance(neigbhor, endCoord));
-                        cameFromId[neigbhor.x, neigbhor.y] = currentId;
-                        distanceToId[neigbhor.x, neigbhor.y] = distance;
-                    }
-                }
-            }
+        private List<Coord> FindPathBackTrace(Coord startCoord, Coord endCoord) {
             var path = new List<Coord>();
-            if (currentId == endCoord) {
-                path.Add(currentId);
-                while (currentId != startCoord) {
-                    currentId = cameFromId[currentId.x, currentId.y];
-                    path.Add(currentId);
-                }
-                path.Reverse();
+            path.Add(endCoord);
+            while (endCoord != startCoord) {
+                endCoord = cameFromCoord[endCoord.x, endCoord.y];
+                path.Add(endCoord);
             }
+            path.Reverse();
             return path;
         }
 

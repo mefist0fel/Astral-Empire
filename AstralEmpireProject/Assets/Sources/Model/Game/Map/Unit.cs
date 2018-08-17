@@ -15,8 +15,9 @@ namespace Model {
         public Faction Faction = null;
 
         public int moveDistance = 3;
-        public Map.CellType[] moveTerrainMask = new Map.CellType[] {
-            Map.CellType.Land
+        public Map.CellType[] MoveTerrainMask = new Map.CellType[] {
+            Map.CellType.Land,
+            Map.CellType.Rough
         };
 
         [SerializeField]
@@ -104,8 +105,8 @@ namespace Model {
         }
 
         public bool IsCanMoveThrew(Map.CellType type) {
-            if (moveTerrainMask != null) {
-                foreach (var mask in moveTerrainMask) {
+            if (MoveTerrainMask != null) {
+                foreach (var mask in MoveTerrainMask) {
                     if (mask == type) {
                         return true;
                     }

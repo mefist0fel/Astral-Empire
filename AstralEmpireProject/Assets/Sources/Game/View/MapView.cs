@@ -31,8 +31,8 @@ public sealed class MapView : MonoBehaviour {
     }
 
     public void Init(Map map) {
-        mapShift = -CellCoordToPosition(new Coord((map.Widht - 1) * 0.5f, (map.Height - 1) * 0.5f));
-        for (int i = 0; i < map.Widht; i++) {
+        mapShift = -CellCoordToPosition(new Coord((map.Width - 1) * 0.5f, (map.Height - 1) * 0.5f));
+        for (int i = 0; i < map.Width; i++) {
             for (int j = 0; j < map.Height; j++) {
                 var coord = new Coord(i, j);
                 var prefab = GetRandomPrefabForType(map[coord].Type);
@@ -44,7 +44,7 @@ public sealed class MapView : MonoBehaviour {
     public Rect GetBorders(Map map) {
         Vector2 min = Vector2.zero;
         Vector2 max = Vector2.zero;
-        for (int i = 0; i < map.Widht; i++) {
+        for (int i = 0; i < map.Width; i++) {
             for (int j = 0; j < map.Height; j++) {
                 var coord = new Coord(i, j);
                 if (map[coord].Type == Map.CellType.None)
