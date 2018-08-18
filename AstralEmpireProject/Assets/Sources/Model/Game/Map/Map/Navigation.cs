@@ -43,7 +43,7 @@ namespace Model.PathFind {
 
         public MarkersSet GetMoveZone(Unit unit) {
             var moveMarkers = new MarkersSet();
-            MarkMoveZoneRecursive(moveMarkers, unit.Coordinate, unit, unit.ActionPoints + 1);
+            MarkMoveZoneRecursive(moveMarkers, unit.Coordinate, unit, unit.ActionPoints + map[unit.Coordinate].MoveCost);
             return moveMarkers;
         }
 
@@ -68,14 +68,20 @@ namespace Model.PathFind {
                 Coord current = to;
                 const int maxSearchDeep = 100;
                 int deep = 0;
+                int nearestDistance;
+                Coord neigbhor;
+                Coord nearest = new Coord();
                 while (deep < maxSearchDeep) {
+                    nearestDistance = 0;
                     for (int i = 0; i < Neigbhors.Length; i++) {
-                        if (moveMarkers[current + Neigbhors[i]] > moveMarkers[current]) {
-                            current = current + Neigbhors[i];
-                            pathPoints.Add(current);
-                            break;
+                        neigbhor = current + Neigbhors[i];
+                        if (nearestDistance < moveMarkers[neigbhor]) {
+                            nearestDistance = moveMarkers[neigbhor];
+                            nearest = neigbhor;
                         }
                     }
+                    current = nearest;
+                    pathPoints.Add(current);
                     if (current == from) {
                         break;
                     }
@@ -100,12 +106,10 @@ namespace Model.PathFind {
             int i;
             int distance;
             Coord neigbhorCoord;
-           // bool unitOnCurrentCell;
             while (frontier.Count > 0) {
                 currentCoord = frontier.Dequeue();
                 if (currentCoord == endCoord)
                     break;
-               // unitOnCurrentCell = map[currentCoord].HasUnit;
 
                 for (i = 0; i < Neigbhors.Length; i++) {
                     neigbhorCoord = currentCoord + Neigbhors[i];

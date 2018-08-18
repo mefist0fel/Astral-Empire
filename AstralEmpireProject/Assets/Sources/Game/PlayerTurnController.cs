@@ -132,7 +132,9 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
 
     public void OnChangeStatus() {}
 
-    public void OnEndTurn() {}
+    public void OnEndTurn() {
+        SelectUnit(null);
+    }
 
     public void OnStartTurn(Faction faction) {
         currentFaction = faction;
