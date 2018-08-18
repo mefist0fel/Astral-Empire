@@ -9,6 +9,10 @@ public sealed class MarkersCollectionView : MonoBehaviour {
 
 	private void Start () {}
 
+    public void Show(Vector3 point) {
+        Show(new List<Vector3> { point });
+    }
+
     public void Show(List<Vector3> list = null) {
         int count = list == null ? 0 : list.Count;
         if (count > markersCache.Count)
