@@ -20,8 +20,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4186938674201696}
   - component: {fileID: 33358908362080180}
-  - component: {fileID: 114128151432156070}
   - component: {fileID: 23045762695848428}
+  - component: {fileID: 114427834154937264}
   m_Layer: 0
   m_Name: AttackMarker
   m_TagString: Untagged
@@ -84,7 +84,7 @@ MeshFilter:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1489068653360458}
   m_Mesh: {fileID: 0}
---- !u!114 &114128151432156070
+--- !u!114 &114427834154937264
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -92,14 +92,15 @@ MonoBehaviour:
   m_GameObject: {fileID: 1489068653360458}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: ddb86c03841fe7146bbd0ee5078699f3, type: 3}
+  m_Script: {fileID: 11500000, guid: 5029235be95692b4b8474f97133a0c5f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   settings:
     edgeCount: 6
-    radius: 0.4
+    outerRadius: 0.5
+    innerRadius: 0.46
     startAngle: 0
-    depth: 0.06
+    depth: 0.02
     smoothNormals: 0
-  shift: {x: 0, y: 0.15, z: 0}
+  shift: {x: 0, y: 0.08, z: 0}
   meshFilter: {fileID: 33358908362080180}

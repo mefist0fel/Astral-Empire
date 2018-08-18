@@ -103,6 +103,7 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
     private void SelectUnit(Unit unit) {
         selectedUnit = unit;
         moveMarkersView.Hide();
+        fireMarkersView.Hide();
         if (unit == null) {
             moveZoneMarkersView.Hide();
             return;
@@ -112,9 +113,15 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
             return;
         }
         selectedCoord = unit.Coordinate;
-        var moveMarkers = game.Map.GetMoveZone(unit);
-        var markersPositions = moveMarkers.GetCoordList().Select((coord) => mapView.CellCoordToPosition(coord)).ToList();
-        moveZoneMarkersView.Show(markersPositions);
+        var moveCoords = game.Map.GetMoveZone(unit).GetCoordList();
+        var enemyCoords = moveCoords.Where(coord => game.Map[coord].HasEnemyUnit(selectedUnit)).ToList();
+        moveCoords.RemoveAll(coord => enemyCoords.Contains(coord));
+        fireMarkersView.Show(CoordToPositions(enemyCoords));
+        moveZoneMarkersView.Show(CoordToPositions(moveCoords));
+    }
+
+    private List<Vector3> CoordToPositions(List<Coord> coordList) {
+        return coordList.Select((coord) => mapView.CellCoordToPosition(coord)).ToList();
     }
 
     private void ShowStatus(Map.Cell cell, Coord coord) {

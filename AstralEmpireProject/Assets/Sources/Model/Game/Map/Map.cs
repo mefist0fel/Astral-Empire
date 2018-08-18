@@ -46,6 +46,17 @@ namespace Model {
             public bool HasUnit {
                 get { return (Unit != null && Unit.IsAlive); }
             }
+
+            public bool HasEnemyUnit(Unit unit) {
+                return (HasUnit && Unit.Faction != unit.Faction);
+            }
+
+            public bool CanMoveAcrossBy(Unit unit) {
+                for (int i = 0; i < unit.MoveTerrainMask.Length; i++)
+                    if (unit.MoveTerrainMask[i] == Type)
+                        return true;
+                return false;
+            }
         }
 
         public Cell this[int x, int y] {

@@ -41,6 +41,12 @@ namespace Model.PathFind {
             return distanceToId;
         }
 
+        public MarkersSet GetActionZone(Unit unit) {
+            var moveMarkers = new MarkersSet();
+            MarkMoveZoneRecursive(moveMarkers, unit.Coordinate, unit, unit.ActionPoints + map[unit.Coordinate].MoveCost);
+            return moveMarkers;
+        }
+
         public MarkersSet GetMoveZone(Unit unit) {
             var moveMarkers = new MarkersSet();
             MarkMoveZoneRecursive(moveMarkers, unit.Coordinate, unit, unit.ActionPoints + map[unit.Coordinate].MoveCost);
@@ -48,14 +54,17 @@ namespace Model.PathFind {
         }
 
         private void MarkMoveZoneRecursive(MarkersSet moveMarkers, Coord coord, Unit unit, int actionPoints) {
-            actionPoints -= map[coord].MoveCost;
-            if (actionPoints < 0)
+            var cell = map[coord];
+            actionPoints -= cell.MoveCost;
+            if (actionPoints < 0) // No action points
                 return;
-            if (!CanMoveThrough(coord, unit))
+            if (!cell.CanMoveAcrossBy(unit)) // Can't move across cell type of terrain
                 return;
-            if (actionPoints <= moveMarkers[coord])
+            if (actionPoints <= moveMarkers[coord]) // cell already pacified
                 return;
             moveMarkers[coord] = actionPoints;
+            if (cell.HasEnemyUnit(unit)) // enemy unit on cell - can move to cell but can't move from it later
+                return;
             for (int i = 0; i < Neigbhors.Length; i++) {
                 MarkMoveZoneRecursive(moveMarkers, coord + Neigbhors[i], unit, actionPoints);
             }
@@ -106,6 +115,7 @@ namespace Model.PathFind {
             int i;
             int distance;
             Coord neigbhorCoord;
+            Map.Cell neigbhorCell;
             while (frontier.Count > 0) {
                 currentCoord = frontier.Dequeue();
                 if (currentCoord == endCoord)
@@ -113,9 +123,10 @@ namespace Model.PathFind {
 
                 for (i = 0; i < Neigbhors.Length; i++) {
                     neigbhorCoord = currentCoord + Neigbhors[i];
-                    distance = distanceToId[currentCoord.x, currentCoord.y] + map[neigbhorCoord].MoveCost;
-                    if (distance < distanceToId[neigbhorCoord.x, neigbhorCoord.y] && CanMoveThrough(neigbhorCoord, unit)) {
-                        frontier.Enqueue(neigbhorCoord, (distance + HeuristicDistance(neigbhorCoord, endCoord)) * 2 + (map[neigbhorCoord].HasUnit ? 1 : 0));
+                    neigbhorCell = map[neigbhorCoord];
+                    distance = distanceToId[currentCoord.x, currentCoord.y] + neigbhorCell.MoveCost;
+                    if (distance < distanceToId[neigbhorCoord.x, neigbhorCoord.y] && neigbhorCell.CanMoveAcrossBy(unit) && !neigbhorCell.HasEnemyUnit(unit)) {
+                        frontier.Enqueue(neigbhorCoord, (distance + HeuristicDistance(neigbhorCoord, endCoord)) * 2 + (neigbhorCell.HasUnit ? 1 : 0));
                         cameFromCoord[neigbhorCoord.x, neigbhorCoord.y] = currentCoord;
                         distanceToId[neigbhorCoord.x, neigbhorCoord.y] = distance;
                     }
@@ -132,15 +143,6 @@ namespace Model.PathFind {
                     distanceToId[x, y] = int.MaxValue;
                 }
             }
-        }
-
-        private bool CanMoveThrough(Coord coord, Unit unit) {
-            var cell = map[coord];
-            if (cell.Unit != null && unit.Faction != cell.Unit.Faction)
-                return false;
-            if (!unit.MoveTerrainMask.Contains(cell.Type))
-                return false;
-            return true;
         }
 
         private List<Coord> FindPathBackTrace(Coord startCoord, Coord endCoord) {
