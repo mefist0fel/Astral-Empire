@@ -20,7 +20,7 @@ public class CameraController : MonoBehaviour {
     [SerializeField]
     private Vector3 needPosition = Vector3.zero;
 
-    private Quaternion needRotation = Quaternion.Euler(60, 30, 0);
+    private Quaternion needRotation = Quaternion.Euler(45, 0, 0);
     [SerializeField]
     private Camera controlCamera = null;
 

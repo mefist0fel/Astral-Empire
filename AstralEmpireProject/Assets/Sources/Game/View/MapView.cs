@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections;
 using System.Collections.Generic;
 using Model;
 using UnityEngine;
@@ -74,7 +73,7 @@ public sealed class MapView : MonoBehaviour {
             return;
         var cellObject = Instantiate(prefab, transform);
         cellObject.transform.position = position;
-        cellObject.transform.localRotation = Quaternion.Euler(0, Random.Range(0, 4) * 90f, 0);
+        cellObject.transform.localRotation = Quaternion.Euler(0, Random.Range(0, 6) * 60f, 0);
     }
 
 #if UNITY_EDITOR

@@ -37,6 +37,7 @@ GameObject:
   - component: {fileID: 4708655041530364}
   - component: {fileID: 33174441545275812}
   - component: {fileID: 23226734673661982}
+  - component: {fileID: 114439813975038660}
   m_Layer: 0
   m_Name: Unit
   m_TagString: Untagged
@@ -65,8 +66,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1870936973308906}
   m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0.25, z: 0}
-  m_LocalScale: {x: 0.2, y: 0.5, z: 0.2}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4388947253801258}
   m_RootOrder: 0
@@ -86,7 +87,7 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RenderingLayerMask: 4294967295
   m_Materials:
-  - {fileID: 2100000, guid: d14b49656b50e0d46b944f8c3f30e516, type: 2}
+  - {fileID: 2100000, guid: d01deab32052ebe43b0be38386e5b0b0, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -112,7 +113,7 @@ MeshFilter:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1870936973308906}
-  m_Mesh: {fileID: 10202, guid: 0000000000000000e000000000000000, type: 0}
+  m_Mesh: {fileID: 0}
 --- !u!114 &114298068254851956
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -124,12 +125,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 71d482e42a6e103439a00bc8ebe3dd42, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  moveSpeed: 8
+  moveSpeed: 4
   unit:
     moveDistance: 0
-    moveTerrainMask: 
+    MoveTerrainMask: 
     damage: 0
     maxFireRange: 0
     minFireRange: 0
     movePath: []
   lifeLabel: {fileID: 0}
+--- !u!114 &114439813975038660
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1870936973308906}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ddb86c03841fe7146bbd0ee5078699f3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  settings:
+    edgeCount: 6
+    radius: 0.08
+    startAngle: 0
+    depth: 0.3
+    smoothNormals: 0
+  shift: {x: 0, y: 0.3, z: 0}
+  meshFilter: {fileID: 33174441545275812}
