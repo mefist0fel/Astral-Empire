@@ -102,5 +102,5 @@ MonoBehaviour:
     startAngle: 0
     depth: 0.02
     smoothNormals: 0
-  shift: {x: 0, y: 0.08, z: 0}
+  shift: {x: 0, y: 0.02, z: 0}
   meshFilter: {fileID: 33290426278901288}

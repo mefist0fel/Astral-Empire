@@ -32,7 +32,12 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
     private void Start() {
         cameraModel = new CameraControlModel(OnFieldClick);
         gameUI = UILayer.Show<GameUI>();
+        gameUI.OnCancelUnitClick += CancelUnitSelectionHandler;
         gameUI.OnEndTurnClick += OnEndTurnHandler;
+    }
+
+    private void CancelUnitSelectionHandler() {
+        SelectUnit(null);
     }
 
     private void OnDestroy() {
@@ -66,7 +71,11 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
                     moveMarkersView.Show(markersPositions);
                 }
             } else {
-                SelectUnit(cell.Unit);
+                if (cell.Unit == selectedUnit) { // deselect unit on second click
+                    SelectUnit(null);
+                } else {
+                    SelectUnit(cell.Unit);
+                }
             }
         }
         ShowStatus(cell, pointerCoord);
@@ -105,13 +114,16 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
         moveMarkersView.Hide();
         fireMarkersView.Hide();
         if (unit == null) {
+            gameUI.ShowUnit(null);
             moveZoneMarkersView.Hide();
             return;
         }
         if (unit.Faction != currentFaction) {
+            gameUI.ShowUnit(null);
             moveZoneMarkersView.Hide();
             return;
         }
+        gameUI.ShowUnit(unit);
         selectedCoord = unit.Coordinate;
         var moveCoords = game.Map.GetMoveZone(unit).GetCoordList();
         var enemyCoords = moveCoords.Where(coord => game.Map[coord].HasEnemyUnit(selectedUnit)).ToList();
@@ -129,7 +141,7 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
         var unit = cell.Unit;
         if (unit != null) {
             if (unit.Faction == currentFaction) {
-                status += unit.Name + " hp:" + unit.HitPoints;
+                status += unit.Id + " hp:" + unit.HitPoints;
             } else {
                 status += "enemy hp:" + unit.HitPoints;
             }

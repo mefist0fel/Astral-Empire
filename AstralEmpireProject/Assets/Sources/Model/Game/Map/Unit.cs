@@ -9,8 +9,7 @@ namespace Model {
         public int MaxHitPoints { get; private set; }
         public int ActionPoints { get; private set; }
         public int MaxActionPoints { get; private set; }
-        public string Model { get; private set; }
-        public string Name { get; private set; }
+        public string Id { get; private set; }
         public Coord Coordinate { get; private set; }
         public Faction Faction = null;
 
@@ -28,20 +27,21 @@ namespace Model {
         public List<Coord> movePath = new List<Coord>();
         private Map map = null;
 
-        public Unit(string name, int maxHitPoints, int maxActionPoints) {
+        public Unit(string id, int maxHitPoints, int maxActionPoints) {
             Coordinate = new Coord();
             HitPoints = maxHitPoints;
             MaxHitPoints = maxHitPoints;
             ActionPoints = maxActionPoints;
             MaxActionPoints = maxActionPoints;
-        //       Model = unitData.Model;
-        //       Name = unitData.Name;
-        //       moveDistance = unitData.MoveDistance;
-        //       moveTerrainMask = GetMaskForType(unitData.MoveType);
-        //       damage = unitData.Damage;
-        //       maxFireRange = unitData.MaxFireRange;
-        //       minFireRange = unitData.MinFireRange;
-    }
+            Id = id;
+            //       Model = unitData.Model;
+            //       Name = unitData.Name;
+            //       moveDistance = unitData.MoveDistance;
+            //       moveTerrainMask = GetMaskForType(unitData.MoveType);
+            //       damage = unitData.Damage;
+            //       maxFireRange = unitData.MaxFireRange;
+            //       minFireRange = unitData.MinFireRange;
+        }
 
       //  private Map.CellType[] GetMaskForType(UnitData.MovingType moveType) {
       //      switch (moveType) {
@@ -66,7 +66,6 @@ namespace Model {
             Coordinate = unitCoord;
             map = controlMap;
             map[Coordinate].Unit = this; // add Set unit action
-            Name = "Unit_" + team.Name;
         }
 
         public void MoveTo(Coord newCoord, int actionPoints) {
