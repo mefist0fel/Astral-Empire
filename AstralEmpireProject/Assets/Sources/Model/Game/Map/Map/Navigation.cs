@@ -125,7 +125,7 @@ namespace Model.PathFind {
                     neigbhorCoord = currentCoord + Neigbhors[i];
                     neigbhorCell = map[neigbhorCoord];
                     distance = distanceToId[currentCoord.x, currentCoord.y] + neigbhorCell.MoveCost;
-                    if (distance < distanceToId[neigbhorCoord.x, neigbhorCoord.y] && neigbhorCell.CanMoveAcrossBy(unit) && !neigbhorCell.HasEnemyUnit(unit)) {
+                    if (distance < distanceToId[neigbhorCoord.x, neigbhorCoord.y] && neigbhorCell.CanMoveAcrossBy(unit) && (!neigbhorCell.HasEnemyUnit(unit) || neigbhorCoord == endCoord)) {
                         frontier.Enqueue(neigbhorCoord, (distance + HeuristicDistance(neigbhorCoord, endCoord)) * 2 + (neigbhorCell.HasUnit ? 1 : 0));
                         cameFromCoord[neigbhorCoord.x, neigbhorCoord.y] = currentCoord;
                         distanceToId[neigbhorCoord.x, neigbhorCoord.y] = distance;

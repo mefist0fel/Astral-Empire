@@ -17,6 +17,8 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
     private MarkersCollectionView fireMarkersView = null;
     [SerializeField]
     private MarkersCollectionView selectedMarkersView = null;
+    [SerializeField]
+    private float markersDistance = 0.2f;
 
     private GameUI gameUI = null;
     private Faction currentFaction = null;
@@ -57,8 +59,23 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
         if (selectedUnit == null) {
             SelectPlayerUnit(cell.Unit);
         } else {
-            if (cell.Unit == null) {
-                if (selectedCoord == pointerCoord) {
+            if (selectedCoord != pointerCoord) {
+                selectedCoord = pointerCoord;
+                if (cell.Unit == null) {
+                    ShowCurrentPath(selectedUnit, selectedCoord);
+                } else {
+                    if (cell.Unit == selectedUnit) { // deselect unit on second click
+                        SelectPlayerUnit(null); // on click selected unit again - deselect
+                    } else {
+                        if (cell.Unit.Faction == selectedUnit.Faction) { // on click ally unit - select it
+                            SelectPlayerUnit(cell.Unit);
+                        } else { // on click enemy unit - move to it
+                            ShowCurrentPath(selectedUnit, selectedCoord);
+                        }
+                    }
+                }
+            } else {
+                if (cell.Unit == null) {
                     if (unitTargetPoints.ContainsKey(selectedUnit)) {
                         unitTargetPoints[selectedUnit] = selectedCoord;
                     } else {
@@ -70,14 +87,19 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
                     else
                         SelectPlayerUnit(null);
                 } else {
-                    selectedCoord = pointerCoord;
-                    ShowCurrentPath(selectedUnit, selectedCoord);
-                }
-            } else {
-                if (cell.Unit == selectedUnit) { // deselect unit on second click
-                    SelectPlayerUnit(null);
-                } else {
-                    SelectPlayerUnit(cell.Unit);
+                    if (cell.Unit.Faction == selectedUnit.Faction) { // on click ally unit - select it
+                        if (cell.Unit == selectedUnit) { // deselect unit on second click
+                            SelectPlayerUnit(null);
+                        } else {
+                            SelectPlayerUnit(cell.Unit);
+                        }
+                    } else {
+                        MoveUnitToTarget(selectedUnit, selectedCoord);
+                        if (selectedUnit.ActionPoints > 0)
+                            SelectPlayerUnit(selectedUnit);
+                        else
+                            SelectPlayerUnit(null);
+                    }
                 }
             }
         }
@@ -147,7 +169,18 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
     private void ShowCurrentPath(Unit unit, Coord selectedCoord) {
         var path = game.Map.FindPath(unit, selectedCoord);
         var markersPositions = path.Select((coord) => mapView.CellCoordToPosition(coord)).ToList();
-        moveMarkersView.Show(markersPositions);
+        var pathPoints = GetBesiePoints(markersPositions);
+        moveMarkersView.Show(pathPoints);
+    }
+
+    private List<Vector3> GetBesiePoints(List<Vector3> markersPositions) {
+        var pathBesie = new BesieCurve(markersPositions.ToArray());
+        var pointsCount = Mathf.CeilToInt(pathBesie.Lenght / markersDistance);
+        var curvedPath = new List<Vector3>(pointsCount);
+        for (int i = 0; i < pointsCount; i++) {
+            curvedPath.Add(pathBesie.GetPositionOnCurve(i * markersDistance));
+        }
+        return curvedPath;
     }
 
     private List<Vector3> CoordToPositions(List<Coord> coordList) {

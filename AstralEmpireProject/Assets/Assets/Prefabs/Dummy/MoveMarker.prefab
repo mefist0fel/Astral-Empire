@@ -97,9 +97,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   settings:
     edgeCount: 6
-    radius: 0.2
+    radius: 0.06
     startAngle: 0
-    depth: 0.04
+    depth: 0.02
     smoothNormals: 0
-  shift: {x: 0, y: 0.04, z: 0}
+  shift: {x: 0, y: 0.012, z: 0}
   meshFilter: {fileID: 33804492245763122}
