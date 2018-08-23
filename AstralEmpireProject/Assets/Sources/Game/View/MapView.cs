@@ -16,7 +16,7 @@ public sealed class MapView : MonoBehaviour {
     [Serializable]
     public sealed class CellPreset {
         public Map.CellType Type = Map.CellType.Land;
-        public GameObject CellObject;
+        public GameObject[] CellObjects;
     }
 
     public Vector3 CellCoordToPosition(Coord point) {
@@ -63,7 +63,7 @@ public sealed class MapView : MonoBehaviour {
     private GameObject GetRandomPrefabForType(Map.CellType type) {
         foreach (var preset in cellObjectPresets) {
             if (preset.Type == type)
-                return preset.CellObject;
+                return preset.CellObjects[Random.Range(0, preset.CellObjects.Length)];
         }
         return null;
     }
