@@ -62,9 +62,9 @@ namespace Model.PathFind {
                 return;
             if (actionPoints <= moveMarkers[coord]) // cell already pacified
                 return;
-            moveMarkers[coord] = actionPoints;
             if (cell.HasEnemyUnit(unit)) // enemy unit on cell - can move to cell but can't move from it later
                 return;
+            moveMarkers[coord] = actionPoints;
             for (int i = 0; i < Neigbhors.Length; i++) {
                 MarkMoveZoneRecursive(moveMarkers, coord + Neigbhors[i], unit, actionPoints);
             }

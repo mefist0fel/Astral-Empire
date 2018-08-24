@@ -9,6 +9,8 @@ namespace Model {
         public int MaxHitPoints { get; private set; }
         public int ActionPoints { get; private set; }
         public int MaxActionPoints { get; private set; }
+        public readonly int MinFireRange = 1;
+        public readonly int MaxFireRange = 1;
         public string Id { get; private set; }
         public Coord Coordinate { get; private set; }
         public Faction Faction = null;
@@ -21,8 +23,6 @@ namespace Model {
 
         [SerializeField]
         private int damage = 6;
-        public int maxFireRange = 1;
-        public int minFireRange = 1;
 
         public List<Coord> movePath = new List<Coord>();
         private Map map = null;

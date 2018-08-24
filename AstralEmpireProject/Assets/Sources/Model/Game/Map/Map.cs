@@ -9,7 +9,7 @@ namespace Model {
     /// <summary>
     /// Map. Base class to store cell structure and manage paht finding and fire range
     /// </summary>
-    public class Map {
+    public sealed class Map {
         public abstract class AbstractAction { }
 
         private const int defaultSize = 21;
@@ -189,14 +189,6 @@ namespace Model {
             unit.AttackUnit(attackedUnit);
         }
 
-        private bool CanMoveThroughCell(Cell cell, CellType[] accessibilityMask, Faction faction) {
-            if (!accessibilityMask.Contains(cell.Type))
-                return false;
-            if (cell.Unit != null && faction != cell.Unit.Faction)
-                return false;
-            return true;
-        }
-
         public MarkersSet GetMoveZone(Unit unit) {
             return Navigation.GetMoveZone(unit);
         }
@@ -245,23 +237,46 @@ namespace Model {
         //      }
         //  }
 
-        // public MarkersSet GetFireZoneForMoveZone(Unit unit, MarkersSet moveZone = null) {
-        //     if (moveZone == null) {
-        //         moveZone = GetMoveZone(unit);
-        //     }
-        //     MarkersSet fullFireZone = new MarkersSet();
-        //     var moveCoords = moveZone.GetCoordList();
-        //     foreach (var coord in moveCoords) {
-        //         if (this[coord].Unit == null) {
-        //             MarkersSet localFireMarkers = new MarkersSet();
-        //             MarkFireZoneRecursive(localFireMarkers, coord, unit.maxFireRange + 1);
-        //             ClearNearFireZoneRecursive(localFireMarkers, coord, unit.minFireRange);
-        //             MarkEnemyUnitsOnFireZone(localFireMarkers, unit);
-        //             fullFireZone.Add(localFireMarkers);
-        //         }
-        //     }
-        //     return fullFireZone;
-        // }
+        public MarkersSet GetFireZoneForMoveZone(Unit unit, MarkersSet moveZone = null) {
+            MarkersSet fireMarkers = new MarkersSet();
+            if (moveZone == null) {
+                moveZone = GetMoveZone(unit);
+            }
+            MarkersSet fullFireZone = new MarkersSet();
+            var moveCoords = moveZone.GetCoordList();
+            int availableActionPoints;
+            foreach (var coord in moveCoords) {
+                if (this[coord].Unit != null)
+                    continue;
+                availableActionPoints = moveZone[coord];
+                if (availableActionPoints > 0)
+                    fullFireZone.Add(GetFireZoneFromCoord(coord, unit));
+            }
+            return fullFireZone;
+        }
+
+        private MarkersSet GetFireZoneFromCoord(Coord coord, Unit unit) {
+            MarkersSet fireMarkers = new MarkersSet();
+            for (int i = -unit.MaxFireRange; i <= unit.MaxFireRange; i++) {
+                for (int j = -unit.MaxFireRange; j <= unit.MaxFireRange; j++) {
+                    var distance = CubeDistance(i, j);
+                    var distanceIsActual = unit.MinFireRange <= distance && distance <= unit.MaxFireRange;
+                    var currentCoord = new Coord(i, j) + coord;
+                    var hasEnemyUnit = this[currentCoord].HasEnemyUnit(unit);
+                    if (distanceIsActual && hasEnemyUnit)
+                        fireMarkers[currentCoord] = 1;
+                }
+            }
+            return fireMarkers;
+        }
+
+        private int CubeDistance(int x, int y) {
+            return Math.Max(
+                Mathf.Abs(-x - y),
+                Math.Max(
+                    Mathf.Abs(x),
+                    Mathf.Abs(y)));
+        }
         //
         // public bool IsCanFireFromCoord(Unit unit, Coord coord, Coord fireCoord) {
         //     var fireMarkers = new MarkersSet();

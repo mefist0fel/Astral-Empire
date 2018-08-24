@@ -153,11 +153,12 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
         selectedCoord = unit.Coordinate;
         selectedMarkersView.Show(mapView.CellCoordToPosition(selectedCoord));
         if (selectedUnit.ActionPoints > 0) {
-            var moveCoords = game.Map.GetMoveZone(unit).GetCoordList();
-            var enemyCoords = moveCoords.Where(coord => game.Map[coord].HasEnemyUnit(selectedUnit)).ToList();
-            moveCoords.RemoveAll(coord => enemyCoords.Contains(coord));
-            fireMarkersView.Show(CoordToPositions(enemyCoords));
+            var moveZone = game.Map.GetMoveZone(unit);
+            var moveCoords = moveZone.GetCoordList();
             moveZoneMarkersView.Show(CoordToPositions(moveCoords));
+            var fireZone = game.Map.GetFireZoneForMoveZone(unit, moveZone);
+            var fireCoords = fireZone.GetCoordList();
+            fireMarkersView.Show(CoordToPositions(fireCoords));
         } else {
             moveZoneMarkersView.Hide();
         }
@@ -174,6 +175,8 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
     }
 
     private List<Vector3> GetBesiePoints(List<Vector3> markersPositions) {
+        if (markersPositions == null || markersPositions.Count < 2)
+            return null;
         var pathBesie = new BesieCurve(markersPositions.ToArray());
         var pointsCount = Mathf.CeilToInt(pathBesie.Lenght / markersDistance);
         var curvedPath = new List<Vector3>(pointsCount);
