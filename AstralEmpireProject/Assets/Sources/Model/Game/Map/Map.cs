@@ -32,7 +32,7 @@ namespace Model {
             Mountains = 4 // No ships can move - large objects
         }
 
-        public class Cell {
+        public sealed class Cell {
             public Unit Unit = null;
             public CellType Type = CellType.None;
             public int MoveCost = 1;
@@ -243,6 +243,7 @@ namespace Model {
                 moveZone = GetMoveZone(unit);
             }
             MarkersSet fullFireZone = new MarkersSet();
+            fullFireZone.Add(GetFireZoneFromCoord(unit.Coordinate, unit));
             var moveCoords = moveZone.GetCoordList();
             int availableActionPoints;
             foreach (var coord in moveCoords) {
@@ -277,14 +278,30 @@ namespace Model {
                     Mathf.Abs(x),
                     Mathf.Abs(y)));
         }
-        //
-        // public bool IsCanFireFromCoord(Unit unit, Coord coord, Coord fireCoord) {
-        //     var fireMarkers = new MarkersSet();
-        //     MarkFireZoneRecursive(fireMarkers, coord, unit.maxFireRange + 1);
-        //     ClearNearFireZoneRecursive(fireMarkers, coord, unit.minFireRange);
-        //     bool canFire = (fireMarkers[fireCoord] > 0);
-        //     return canFire;
-        // }
+
+        public bool IsCanFireFromCoord(Unit unit, Coord coord, Coord fireCoord) {
+            var delta = coord - fireCoord;
+            var distance = CubeDistance(delta.x, delta.y);
+            return unit.MinFireRange <= distance && distance <= unit.MaxFireRange;
+        }
+
+        public Coord FindOptimalMovePoint(Unit unit, MarkersSet moveMarkers, Coord fireCoord) {
+            var moveCoords = moveMarkers.GetCoordList();
+            int bestMarker = 0;
+            Coord nearestCoord = Coord.Zero;
+            foreach (var moveCoord in moveCoords) {
+                if (moveMarkers[moveCoord] > bestMarker && (this[moveCoord].Unit == unit || this[moveCoord].Unit == null)) {
+                    if (IsCanFireFromCoord(unit, moveCoord, fireCoord)) {
+                        nearestCoord = moveCoord;
+                        bestMarker = moveMarkers[moveCoord];
+                    }
+                }
+            }
+            if (nearestCoord == Coord.Zero) {
+                Debug.LogError("Can't find nearest fire point");
+            }
+            return nearestCoord;
+        }
 
         //  internal Coord FindOptimalMovePoint(Unit unit, MarkersSet moveMarkers, Coord fireCoord) {
         //      // TODO change to IEnumerator
