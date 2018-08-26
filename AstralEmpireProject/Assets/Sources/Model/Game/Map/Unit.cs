@@ -75,10 +75,14 @@ namespace Model {
                 if (damageToMe >= this.HitPoints)
                     break;
             }
-            map.AddAction(new AttackAction(this, enemy, damageToEnemy));
-            map.AddAction(new AttackAction(enemy, this, damageToMe));
             this.OnHit(damageToMe);
             enemy.OnHit(damageToEnemy);
+            map.AddAction(new AttackAction(this, enemy, damageToEnemy));
+            map.AddAction(new AttackAction(enemy, this, damageToMe));
+            if (!IsAlive)
+                Death();
+            if (!enemy.IsAlive)
+                enemy.Death();
         }
 
         private bool HitEnemy(Unit enemy) {
@@ -88,8 +92,8 @@ namespace Model {
 
         public void OnHit(int damage) {
             HitPoints -= damage;
-            if (!IsAlive)
-                Death();
+            if (HitPoints < 0)
+                HitPoints = 0;
         }
 
         public void Death() {

@@ -174,6 +174,7 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
             fireSelector.Hide();
             return;
         }
+        // find path for multiple turns
         moveTargetCoord = FindFarestPointInPath(pathCoords, moveZone);
         fireTargetCoord = Empty;
         moveSelector.Show(new List<Vector3>() {
@@ -194,27 +195,17 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
         moveMarkersView.Hide();
         fireMarkersView.Hide();
         moveZoneMarkersView.Hide();
+        if (moveTargetCoord != turnTargetCoord) {
+            AddToTargetPoint(selectedUnit, turnTargetCoord);
+        } else {
+            RemoveTargetPoint(selectedUnit);
+        }
         if (selectedUnit.ActionPoints > 0) {
             SelectUnit(selectedUnit);
         } else {
             SelectUnit(null);
         }
     }
-
-    // private void MoveUnitToTarget(Unit unit, Coord target) {
-    //     if (unit.Coordinate == target) {
-    //         unitTargetPoints.Remove(unit);
-    //         return;
-    //     }
-    //     var pathCoords = game.Map.FindPath(selectedUnit, target);
-    //     if (pathCoords.Count == 0) {
-    //         unitTargetPoints.Remove(unit);
-    //         return;
-    //     }
-    //     var moveZone = game.Map.GetMoveZone(unit);
-    //     var targetToNearTurn = FindFarestPointInPath(pathCoords, moveZone);
-    //     game.Map.MoveUnit(unit.Coordinate, targetToNearTurn, moveZone);
-    // }
 
     private Coord FindFarestPointInPath(List<Coord> pathCoords, MarkersSet moveZone) {
         var pathCoord = pathCoords.First();
@@ -236,59 +227,18 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
         moveMarkersView.Show(pathPoints);
     }
 
+    private void AddToTargetPoint(Unit unit, Coord coord) {
+        if (unitTargetPoints.ContainsKey(unit)) {
+            unitTargetPoints[unit] = coord;
+        } else {
+            unitTargetPoints.Add(unit, coord);
+        }
+    }
 
-    // private void Old() {
-    //
-    //     if (selectedUnit == null) {
-    //         // First click
-    //         SelectPlayerUnit(cell.Unit);
-    //     } else {
-    //         if (selectedCoord != coord) {
-    //             selectedCoord = coord;
-    //             if (cell.Unit == null) {
-    //                 ShowCurrentPath(selectedUnit, selectedCoord);
-    //             } else {
-    //                 if (cell.Unit == selectedUnit) { // deselect unit on second click
-    //                     SelectUnit(null); // on click selected unit again - deselect
-    //                 } else {
-    //                     if (cell.Unit.Faction == selectedUnit.Faction) { // on click ally unit - select it
-    //                         SelectPlayerUnit(cell.Unit);
-    //                     } else { // on click enemy unit - move to it
-    //                         ShowCurrentPath(selectedUnit, selectedCoord);
-    //                     }
-    //                 }
-    //             }
-    //         } else {
-    //             if (cell.Unit == null) {
-    //                 if (unitTargetPoints.ContainsKey(selectedUnit)) {
-    //                     unitTargetPoints[selectedUnit] = selectedCoord;
-    //                 } else {
-    //                     unitTargetPoints.Add(selectedUnit, selectedCoord);
-    //                 }
-    //                 MoveUnitToTarget(selectedUnit, selectedCoord);
-    //                 if (selectedUnit.ActionPoints > 0)
-    //                     SelectUnit(selectedUnit);
-    //                 else
-    //                     SelectUnit(null);
-    //             } else {
-    //                 if (cell.Unit.Faction == selectedUnit.Faction) { // on click ally unit - select it
-    //                     if (cell.Unit == selectedUnit) { // deselect unit on second click
-    //                         SelectUnit(null);
-    //                     } else {
-    //                         SelectPlayerUnit(cell.Unit);
-    //                     }
-    //                 } else {
-    //                     MoveUnitToTarget(selectedUnit, selectedCoord);
-    //                     if (selectedUnit.ActionPoints > 0)
-    //                         SelectUnit(selectedUnit);
-    //                     else
-    //                         SelectUnit(null);
-    //                 }
-    //             }
-    //         }
-    //     }
-    //     ShowStatus(cell, coord);
-    // }
+    private void RemoveTargetPoint(Unit unit) {
+        if (unitTargetPoints.ContainsKey(unit))
+            unitTargetPoints.Remove(unit);
+    }
 
     private List<Vector3> GetBesiePoints(List<Vector3> markersPositions) {
         if (markersPositions == null || markersPositions.Count < 2)

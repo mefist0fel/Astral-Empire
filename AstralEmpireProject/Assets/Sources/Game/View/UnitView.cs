@@ -42,11 +42,12 @@ public sealed class UnitView : MonoBehaviour {
 
     public void Attack(UnitView unitView, int damage) {
         StatusTextView.Create(damage.ToString(), Color.red, unitView.GetHitPoint());
+        UpdateHitPointsLabel();
     }
 
     private void UpdateHitPointsLabel() {
         if (lifeLabel != null) {
-            lifeLabel.text = unit.HitPoints.ToString();
+            lifeLabel.text = string.Format("{0}/{1}", unit.HitPoints, unit.MaxHitPoints);
         }
     }
 
