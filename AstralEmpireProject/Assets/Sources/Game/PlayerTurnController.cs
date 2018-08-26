@@ -83,7 +83,7 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
             SelectUnit(null);
             return;
         }
-        if (selectedUnit != null) {// && CanMakeTurn(coord)) {
+        if (selectedUnit != null && !cell.HasAlliedUnit(selectedUnit)) {
             if (IsPathAccepted(coord)) {
                 MakeTurn();
             } else {
@@ -111,6 +111,9 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
         fireMarkersView.Hide();
         moveZoneMarkersView.Hide();
         selectedMarkersView.Hide();
+
+        moveSelector.Hide();
+        fireSelector.Hide();
         if (unit == null) {
             gameUI.ShowUnit(null);
             return;
@@ -173,7 +176,9 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
         }
         moveTargetCoord = FindFarestPointInPath(pathCoords, moveZone);
         fireTargetCoord = Empty;
-        moveSelector.Show(mapView.CellCoordToPosition(moveTargetCoord));
+        moveSelector.Show(new List<Vector3>() {
+            mapView.CellCoordToPosition(moveTargetCoord),
+            mapView.CellCoordToPosition(turnTargetCoord)});
         fireSelector.Hide();
         ShowCurrentPath(selectedUnit, turnTargetCoord);
     }
@@ -306,9 +311,9 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
         var unit = cell.Unit;
         if (unit != null) {
             if (unit.Faction == currentFaction) {
-                status += unit.Id + " hp:" + unit.HitPoints;
+                status += unit.Id + " hp: " + unit.HitPoints + "/" + unit.MaxHitPoints;
             } else {
-                status += "enemy hp:" + unit.HitPoints;
+                status += "enemy hp: " + unit.HitPoints + "/" + unit.MaxHitPoints;
             }
         }
         gameUI.SetStatusText(status);

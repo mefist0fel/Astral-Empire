@@ -37,6 +37,15 @@ public class GameController : MonoBehaviour, Game.IGameController {
             var moveAction = action as MoveAction;
             unitViews[moveAction.Unit].MoveTo(moveAction.Path.Select(coord => mapView.CellCoordToPosition(coord)).ToArray());
         }
+        if (action is AttackAction) {
+            var attackAction = action as AttackAction;
+            unitViews[attackAction.AttackerUnit].Attack(unitViews[attackAction.DefenciveUnit], attackAction.Damage);
+        }
+        if (action is DeathAction) {
+            var deathAction = action as DeathAction;
+            unitViews[deathAction.Unit].Death();
+            unitViews.Remove(deathAction.Unit);
+        }
     }
 
     private void CreateDummyUnits(int count) {

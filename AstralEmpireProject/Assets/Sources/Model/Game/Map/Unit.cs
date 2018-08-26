@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 namespace Model {
     [Serializable]
@@ -13,6 +14,9 @@ namespace Model {
         public readonly int MaxFireRange = 1;
         public string Id { get; private set; }
         public Coord Coordinate { get; private set; }
+        public int AttackCount { get; private set; }
+        public int Power { get; private set; }
+
         public Faction Faction = null;
 
         public int moveDistance = 3;
@@ -20,9 +24,6 @@ namespace Model {
             Map.CellType.Land,
             Map.CellType.Rough
         };
-
-        [SerializeField]
-        private int damage = 6;
 
         public List<Coord> movePath = new List<Coord>();
         private Map map = null;
@@ -34,25 +35,10 @@ namespace Model {
             ActionPoints = maxActionPoints;
             MaxActionPoints = maxActionPoints;
             Id = id;
-            //       Model = unitData.Model;
-            //       Name = unitData.Name;
-            //       moveDistance = unitData.MoveDistance;
-            //       moveTerrainMask = GetMaskForType(unitData.MoveType);
-            //       damage = unitData.Damage;
-            //       maxFireRange = unitData.MaxFireRange;
-            //       minFireRange = unitData.MinFireRange;
+            AttackCount = 3;
+            Power = 5;
         }
 
-      //  private Map.CellType[] GetMaskForType(UnitData.MovingType moveType) {
-      //      switch (moveType) {
-      //          default:
-      //          case UnitData.MovingType.starship:
-      //              return new Map.CellType[] { Map.CellType.Space };
-      //          case UnitData.MovingType.fighter:
-      //              return new Map.CellType[] { Map.CellType.Space, Map.CellType.Debris };
-      //      }
-      //  }
-      //
         public bool IsAlive {
             get { return HitPoints > 0; }
         }
@@ -74,33 +60,41 @@ namespace Model {
         }
 
         public void AttackUnit(Unit enemy) {
-           // canFire = false;
-           // canMove = false;
-            FireTo(enemy, damage);
-            if (enemy.IsAlive) {
-                if (enemy.IsCanCounterAttack(this)) {
-                 //   enemy.FireTo(this, ContourAttackDamage);
-                    if (!IsAlive) {
-                        Death();
-                    }
-                }
-            } else {
-                enemy.Death();
+            ActionPoints = 0;
+            var damageToEnemy = 0;
+            var damageToMe = 0;
+            for (int i = 0; i < AttackCount; i++) {
+                // attack enemy
+                if (this.HitEnemy(enemy))
+                    damageToEnemy += 1;
+                if (damageToEnemy >= enemy.HitPoints)
+                    break;
+                // back attack me
+                if (enemy.HitEnemy(this))
+                    damageToMe += 1;
+                if (damageToMe >= this.HitPoints)
+                    break;
             }
+            map.AddAction(new AttackAction(this, enemy, damageToEnemy));
+            map.AddAction(new AttackAction(enemy, this, damageToMe));
+            this.OnHit(damageToMe);
+            enemy.OnHit(damageToEnemy);
         }
 
-        public void FireTo(Unit enemy, int damage) {
-            enemy.OnHit(damage);
-            map.AddAction(new AttackAction(this, enemy, damage));
+        private bool HitEnemy(Unit enemy) {
+            var hitChance = this.Power / (float)(this.Power + enemy.Power);
+            return Random.Range(0f, 1f) < hitChance;
         }
 
         public void OnHit(int damage) {
             HitPoints -= damage;
+            if (!IsAlive)
+                Death();
         }
 
         public void Death() {
-            map.KillUnit(Coordinate);
             HitPoints = 0;
+            map.KillUnit(Coordinate);
         }
 
         public bool IsCanMoveThrew(Map.CellType type) {
@@ -112,11 +106,6 @@ namespace Model {
                 }
             }
             return false;
-        }
-
-        private bool IsCanCounterAttack(Unit unit) {
-            //  var fireMarkers = map.GetFireZone(this);
-            return false;// fireMarkers[unit.Coordinate] > 0;
         }
     }
 }

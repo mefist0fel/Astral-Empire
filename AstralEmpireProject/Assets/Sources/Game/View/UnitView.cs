@@ -8,12 +8,14 @@ public sealed class UnitView : MonoBehaviour {
     private float moveSpeed = 1f;
     [SerializeField]
     private Unit unit = null;
+    [SerializeField]
+    private Material deathMaterial = null;
+
+    [SerializeField]
+    private Vector3 hitOffset = new Vector3(0, 0.2f, 0);
 
     // [SerializeField]
-    // private BaseHullView hullView; // Set from editor
-
-   // [SerializeField]
-   // private BaseWeaponView weaponView; // Set from editor
+    // private BaseWeaponView weaponView; // Set from editor
 
     [SerializeField]
     private TextMesh lifeLabel = null; // Set from editor
@@ -26,7 +28,7 @@ public sealed class UnitView : MonoBehaviour {
     }
 
     public Vector3 GetHitPoint() {
-        return transform.position + new Vector3(0, 0.2f, 0);
+        return transform.position + hitOffset;
     }
 
     public void MoveTo(Vector3[] path, Action endMoveAction = null) {
@@ -36,17 +38,13 @@ public sealed class UnitView : MonoBehaviour {
                 return;
             transform.position = moveBesie.GetPositionOnCurve(moveBesie.Lenght * anim);
         }, endMoveAction);
-     //   hullView.Move(path, endMoveAction);
     }
 
-    public void FireTo(UnitView enemy, Action endFireAction = null) {
-     //   hullView.Aim(enemy.transform.position, () => {
-     //       weaponView.Fire(enemy, endFireAction);
-     //   });
+    public void Attack(UnitView unitView, int damage) {
+        StatusTextView.Create(damage.ToString(), Color.red, unitView.GetHitPoint());
     }
 
-
-    void UpdateHitPointsLabel() {
+    private void UpdateHitPointsLabel() {
         if (lifeLabel != null) {
             lifeLabel.text = unit.HitPoints.ToString();
         }
@@ -56,7 +54,7 @@ public sealed class UnitView : MonoBehaviour {
     public void Death() {
         if (this == null)
             return;
-        SetUnitMaterial(Resources.Load<Material>("Materials/Dead"));
+        SetUnitMaterial(deathMaterial);
         if (lifeLabel != null) {
             Timer.Add(0.8f, (anim) => {
                 if (lifeLabel != null) {
@@ -67,8 +65,6 @@ public sealed class UnitView : MonoBehaviour {
         // Falling
         var currentPosition = transform.position;
         var needPosition = transform.position + new Vector3(Random.Range(-0.3f, 0.3f), -Random.Range(0.4f, 1.0f), Random.Range(-0.3f, 0.3f));
-        var currentRotation = transform.rotation;
-        var needRotation = transform.rotation * Quaternion.AngleAxis(Random.Range(30f, 60f), Random.onUnitSphere.normalized);
         var fallCurve = AnimationCurve.EaseInOut(0, 0, 1, 1);
         Timer.Add(-0.1f, 1.6f, (anim) => {
             if (this == null)
@@ -76,7 +72,6 @@ public sealed class UnitView : MonoBehaviour {
             if (transform == null)
                 return;
             transform.position = Vector3.Lerp(currentPosition, needPosition, fallCurve.Evaluate(anim));
-            transform.rotation = Quaternion.Lerp(currentRotation, needRotation, fallCurve.Evaluate(anim));
         });
     }
 

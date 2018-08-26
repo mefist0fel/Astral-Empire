@@ -47,6 +47,10 @@ namespace Model {
                 get { return (Unit != null && Unit.IsAlive); }
             }
 
+            public bool HasAlliedUnit(Unit unit) {
+                return (HasUnit && Unit.Faction == unit.Faction);
+            }
+
             public bool HasEnemyUnit(Unit unit) {
                 return (HasUnit && Unit.Faction != unit.Faction);
             }
@@ -108,6 +112,7 @@ namespace Model {
             }
 #endif
         }
+
         // TODO remove
         public Coord GetRandomCoord(CellType startType = CellType.Land, Coord from = new Coord(), Coord to = new Coord()) {
             if (from == Coord.Zero) {
