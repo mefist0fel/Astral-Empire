@@ -3,6 +3,7 @@ using Model;
 using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
+using Random = UnityEngine.Random;
 
 public class GameController : MonoBehaviour, Game.IGameController {
     [SerializeField]
@@ -23,13 +24,46 @@ public class GameController : MonoBehaviour, Game.IGameController {
             new Faction(playerController, 1, Color.red, Color.black, "Red player")
         };
 
-        var map = new Map(wight, height);
+        var map = new Map(GenerateCells(wight, height));
         map.OnAction += OnAddActionHandler;
         game = new Game(this, map, factions);
         mapView.Init(map);
         playerController.Init(game);
         CameraController.SetBorders(mapView.GetBorders(map));
         CreateDummyUnits(10);
+    }
+
+    private Cell[,] GenerateCells(int widht, int height) {
+        var cells = new Cell[widht, height];
+        for (int i = 0; i < widht; i++) {
+            for (int j = 0; j < height; j++) {
+                cells[i, j] = new Cell();
+            }
+        }
+        for (int i = 2; i < widht - 2; i++) {
+            for (int j = 2; j < height - 2; j++) {
+                if (i + j - 1 <= widht * 0.5f || i + j + 1 >= widht + height - widht * 0.5f - 2) {
+                    continue;
+                }
+                cells[i, j].Type = MoveType.Land;
+            }
+        }
+        for (int i = 2; i < widht - 2; i++) {
+            for (int j = 2; j < height - 2; j++) {
+                if (i + j - 1 <= widht * 0.5f || i + j + 1 >= widht + height - widht * 0.5f - 2) {
+                    continue;
+                }
+                cells[i, j].Type = MoveType.Land;
+                if (Random.Range(0, 8) == 0) {
+                    cells[i, j].Type = MoveType.Rough;
+                    cells[i, j].MoveCost = 2;
+                }
+                if (Random.Range(0, 16) == 0) {
+                    cells[i, j].Type = MoveType.Mountains;
+                }
+            }
+        }
+        return cells;
     }
 
     private void OnAddActionHandler(Map.AbstractAction action) {

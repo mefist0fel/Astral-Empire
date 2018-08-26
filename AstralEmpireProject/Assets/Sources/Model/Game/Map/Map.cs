@@ -12,7 +12,6 @@ namespace Model {
     public sealed class Map {
         public abstract class AbstractAction { }
 
-        private const int defaultSize = 21;
         private readonly int width;
         private readonly int height;
 
@@ -106,44 +105,13 @@ namespace Model {
             new Coord( 0, 1),
         };
 
-        public Map(int mapWidth = defaultSize, int mapHeight = defaultSize) {
-            width = mapWidth;
-            height = mapHeight;
-            cells = GenerateCells(width, height);
+        public Map(Cell[,] mapCells) {
+            width = mapCells.GetLength(0);
+            height = mapCells.GetLength(1);
+            if (mapCells == null || width == 0 || height == 0)
+                throw new FormatException("need a valid two dimentional array of map cells");
+            cells = mapCells;
             Navigation = new Navigation(this);
-        }
-
-        private Cell[,] GenerateCells(int widht, int height) {
-            var cells = new Cell[widht, height];
-            for (int i = 0; i < widht; i++) {
-                for (int j = 0; j < height; j++) {
-                    cells[i, j] = new Cell();
-                }
-            }
-            for (int i = 2; i < widht - 2; i++) {
-                for (int j = 2; j < height - 2; j++) {
-                    if (i + j - 1 <= widht * 0.5f || i + j + 1 >= widht + height - widht * 0.5f - 2) {
-                        continue;
-                    }
-                    cells[i, j].Type = MoveType.Land;
-                }
-            }
-            for (int i = 2; i < widht - 2; i++) {
-                for (int j = 2; j < height - 2; j++) {
-                    if (i + j - 1 <= widht * 0.5f || i + j + 1 >= widht + height - widht * 0.5f - 2) {
-                        continue;
-                    }
-                    cells[i, j].Type = MoveType.Land;
-                    if (Random.Range(0, 8) == 0) {
-                        cells[i, j].Type = MoveType.Rough;
-                        cells[i, j].MoveCost = 2;
-                    }
-                    if (Random.Range(0, 16) == 0) {
-                        cells[i, j].Type = MoveType.Mountains;
-                    }
-                }
-            }
-            return cells;
         }
 
         public void AddAction(AbstractAction action) {
