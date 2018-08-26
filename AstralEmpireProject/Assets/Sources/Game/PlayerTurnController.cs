@@ -51,7 +51,7 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
         cameraModel = new CameraControlModel(OnFieldClick);
         gameUI = UILayer.Show<GameUI>();
         gameUI.OnCancelUnitClick += CancelUnitSelectionHandler;
-        gameUI.OnEndTurnClick += OnEndTurnHandler;
+        gameUI.OnEndTurnClick += OnEndTurnClickHandler;
     }
 
     private void CancelUnitSelectionHandler() {
@@ -59,10 +59,10 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
     }
 
     private void OnDestroy() {
-        gameUI.OnEndTurnClick -= OnEndTurnHandler;
+        gameUI.OnEndTurnClick -= OnEndTurnClickHandler;
     }
 
-    private void OnEndTurnHandler() {
+    private void OnEndTurnClickHandler() {
         game.EndTurn();
     }
 
