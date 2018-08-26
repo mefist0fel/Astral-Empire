@@ -7,7 +7,7 @@ using Random = UnityEngine.Random;
 
 public class GameController : MonoBehaviour, Game.IGameController {
     [SerializeField]
-    private int wight = 51;
+    private int widht = 51;
     [SerializeField]
     private int height = 51;
     [SerializeField]
@@ -24,46 +24,14 @@ public class GameController : MonoBehaviour, Game.IGameController {
             new Faction(playerController, 1, Color.red, Color.black, "Red player")
         };
 
-        var map = new Map(GenerateCells(wight, height));
+        var mapGenerator = new MapGenerator(widht, height);
+        var map = new Map(mapGenerator.GenerateCells());
         map.OnAction += OnAddActionHandler;
         game = new Game(this, map, factions);
         mapView.Init(map);
         playerController.Init(game);
         CameraController.SetBorders(mapView.GetBorders(map));
         CreateDummyUnits(10);
-    }
-
-    private Cell[,] GenerateCells(int widht, int height) {
-        var cells = new Cell[widht, height];
-        for (int i = 0; i < widht; i++) {
-            for (int j = 0; j < height; j++) {
-                cells[i, j] = new Cell();
-            }
-        }
-        for (int i = 2; i < widht - 2; i++) {
-            for (int j = 2; j < height - 2; j++) {
-                if (i + j - 1 <= widht * 0.5f || i + j + 1 >= widht + height - widht * 0.5f - 2) {
-                    continue;
-                }
-                cells[i, j].Type = MoveType.Land;
-            }
-        }
-        for (int i = 2; i < widht - 2; i++) {
-            for (int j = 2; j < height - 2; j++) {
-                if (i + j - 1 <= widht * 0.5f || i + j + 1 >= widht + height - widht * 0.5f - 2) {
-                    continue;
-                }
-                cells[i, j].Type = MoveType.Land;
-                if (Random.Range(0, 8) == 0) {
-                    cells[i, j].Type = MoveType.Rough;
-                    cells[i, j].MoveCost = 2;
-                }
-                if (Random.Range(0, 16) == 0) {
-                    cells[i, j].Type = MoveType.Mountains;
-                }
-            }
-        }
-        return cells;
     }
 
     private void OnAddActionHandler(Map.AbstractAction action) {
@@ -85,7 +53,7 @@ public class GameController : MonoBehaviour, Game.IGameController {
     private void CreateDummyUnits(int count) {
         foreach (var faction in game.Factions) {
             for (int i = 0; i < count; i++) {
-                var randomCoord = game.Map.GetRandomCoord(MoveType.Land, new Coord((int)(wight * 0.4f), (int)(height * 0.4f)), new Coord((int)(wight * 0.6f), (int)(height * 0.6f)));
+                var randomCoord = game.Map.GetRandomCoord(MoveType.Land, new Coord((int)(widht * 0.4f), (int)(height * 0.4f)), new Coord((int)(widht * 0.6f), (int)(height * 0.6f)));
                 game.CreateUnit(faction, randomCoord);
             }
         }
