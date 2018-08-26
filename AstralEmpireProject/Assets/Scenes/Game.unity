@@ -250,20 +250,24 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cellObjectPresets:
-  - Type: 2
+  - Type: 5
     CellObjects:
     - {fileID: 1667580473424028, guid: ab87233d5b38ed24ebac8146b225b021, type: 2}
-    - {fileID: 1667580473424028, guid: ab87233d5b38ed24ebac8146b225b021, type: 2}
-  - Type: 3
+  - Type: 7
     CellObjects:
     - {fileID: 1109229423599764, guid: 083655a1f4fc5ad4a9f7dfcdd9a8d42a, type: 2}
-    - {fileID: 1109229423599764, guid: 71fe86f1909d901449ad2823de44c547, type: 2}
-  - Type: 4
+  - Type: 8
     CellObjects:
     - {fileID: 1496298159318784, guid: 6a6a5bce797cf2f439ce8b8933853190, type: 2}
-  - Type: 2
+  - Type: 1
     CellObjects:
     - {fileID: 1876072018683066, guid: 294433baf3549e64e9ebb10c4dd9dc62, type: 2}
+  - Type: 4
+    CellObjects:
+    - {fileID: 1667580473424028, guid: 821bdc1a712cadc44815000f6ecbfe2d, type: 2}
+  - Type: 6
+    CellObjects:
+    - {fileID: 1109229423599764, guid: 71fe86f1909d901449ad2823de44c547, type: 2}
   size: {x: 1, y: 0.866}
   mapShift: {x: 0, y: 0, z: 0}
 --- !u!4 &134437007
@@ -595,7 +599,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d804875e11aed1142b0a2dd1f4fcd851, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  wight: 51
+  widht: 51
   height: 51
   mapView: {fileID: 134437006}
   playerController: {fileID: 872727458}

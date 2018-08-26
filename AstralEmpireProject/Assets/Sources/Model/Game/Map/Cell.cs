@@ -6,7 +6,7 @@ namespace Model {
         Water = 1,     // ships
         Land = 2,      // usual units
         Rough = 3,     // forest and hills
-        Mountains = 4  // No ships can move - large objects
+        Impassable = 4  // No ships can move - large objects
     }
 
     /// <summary>
@@ -27,7 +27,7 @@ namespace Model {
                 default:
                     return 1;
                 case MoveType.Rough:
-                case MoveType.Mountains:
+                case MoveType.Impassable:
                     return 2;
             }
         }

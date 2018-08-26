@@ -28,7 +28,7 @@ public class GameController : MonoBehaviour, Game.IGameController {
         var map = new Map(mapGenerator.GenerateCells());
         map.OnAction += OnAddActionHandler;
         game = new Game(this, map, factions);
-        mapView.Init(map);
+        mapView.Init(map, mapGenerator);
         playerController.Init(game);
         CameraController.SetBorders(mapView.GetBorders(map));
         CreateDummyUnits(10);

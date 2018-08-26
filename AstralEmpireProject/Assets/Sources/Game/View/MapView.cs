@@ -15,7 +15,7 @@ public sealed class MapView : MonoBehaviour {
 
     [Serializable]
     public sealed class CellPreset {
-        public MoveType Type = MoveType.Land;
+        public CellType Type = CellType.Grass;
         public GameObject[] CellObjects;
     }
 
@@ -30,13 +30,13 @@ public sealed class MapView : MonoBehaviour {
         return new Coord(x, y);
     }
 
-    public void Init(Map controlMap) {
+    public void Init(Map controlMap, MapGenerator generator) {
         map = controlMap;
-        mapShift = -CellCoordToPosition(new Coord((map.Width - 1) * 0.5f, (map.Height - 1) * 0.5f));
-        for (int i = 0; i < map.Width; i++) {
-            for (int j = 0; j < map.Height; j++) {
+        mapShift = -CellCoordToPosition(new Coord((generator.Width - 1) * 0.5f, (generator.Height - 1) * 0.5f));
+        for (int i = 0; i < generator.Width; i++) {
+            for (int j = 0; j < generator.Height; j++) {
                 var coord = new Coord(i, j);
-                var prefab = GetRandomPrefabForType(map[coord].Type);
+                var prefab = GetRandomPrefabForType(generator.Cells[i, j]);
                 CreateCellObject(CellCoordToPosition(coord), prefab);
             }
         }
@@ -60,7 +60,7 @@ public sealed class MapView : MonoBehaviour {
         return new Rect(min, max - min);
     }
 
-    private GameObject GetRandomPrefabForType(MoveType type) {
+    private GameObject GetRandomPrefabForType(CellType type) {
         foreach (var preset in cellObjectPresets) {
             if (preset.Type == type)
                 return preset.CellObjects[Random.Range(0, preset.CellObjects.Length)];
