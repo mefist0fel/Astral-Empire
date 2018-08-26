@@ -20,9 +20,9 @@ namespace Model {
         public Faction Faction = null;
 
         public int moveDistance = 3;
-        public Map.CellType[] MoveTerrainMask = new Map.CellType[] {
-            Map.CellType.Land,
-            Map.CellType.Rough
+        public MoveType[] MoveTerrainMask = new MoveType[] {
+            MoveType.Land,
+            MoveType.Rough
         };
 
         public List<Coord> movePath = new List<Coord>();
@@ -101,7 +101,7 @@ namespace Model {
             map.KillUnit(Coordinate);
         }
 
-        public bool IsCanMoveThrew(Map.CellType type) {
+        public bool IsCanMoveThrew(MoveType type) {
             if (MoveTerrainMask != null) {
                 foreach (var mask in MoveTerrainMask) {
                     if (mask == type) {

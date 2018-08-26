@@ -94,7 +94,7 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
         }
     }
 
-    private bool UnitAlreadySelected(Map.Cell cell, Coord coord) {
+    private bool UnitAlreadySelected(Cell cell, Coord coord) {
         return cell.GetUnit() == selectedUnit;
     }
 
@@ -256,7 +256,7 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
         return coordList.Select((coord) => mapView.CellCoordToPosition(coord)).ToList();
     }
 
-    private void ShowStatus(Map.Cell cell, Coord coord) {
+    private void ShowStatus(Cell cell, Coord coord) {
         var status = coord.ToString() + " " + cell.Type.ToString() + "\n";
         var unit = cell.Unit;
         if (unit != null) {

@@ -115,7 +115,7 @@ namespace Model.PathFind {
             int i;
             int distance;
             Coord neigbhorCoord;
-            Map.Cell neigbhorCell;
+            Cell neigbhorCell;
             while (frontier.Count > 0) {
                 currentCoord = frontier.Dequeue();
                 if (currentCoord == endCoord)

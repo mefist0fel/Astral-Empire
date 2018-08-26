@@ -15,7 +15,7 @@ public sealed class MapView : MonoBehaviour {
 
     [Serializable]
     public sealed class CellPreset {
-        public Map.CellType Type = Map.CellType.Land;
+        public MoveType Type = MoveType.Land;
         public GameObject[] CellObjects;
     }
 
@@ -48,7 +48,7 @@ public sealed class MapView : MonoBehaviour {
         for (int i = 0; i < map.Width; i++) {
             for (int j = 0; j < map.Height; j++) {
                 var coord = new Coord(i, j);
-                if (map[coord].Type == Map.CellType.None)
+                if (map[coord].Type == MoveType.None)
                     continue;
                 var position = CellCoordToPosition(coord);
                 min.x = Mathf.Min(min.x, position.x);
@@ -60,7 +60,7 @@ public sealed class MapView : MonoBehaviour {
         return new Rect(min, max - min);
     }
 
-    private GameObject GetRandomPrefabForType(Map.CellType type) {
+    private GameObject GetRandomPrefabForType(MoveType type) {
         foreach (var preset in cellObjectPresets) {
             if (preset.Type == type)
                 return preset.CellObjects[Random.Range(0, preset.CellObjects.Length)];

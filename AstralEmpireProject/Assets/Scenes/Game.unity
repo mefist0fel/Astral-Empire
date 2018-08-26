@@ -250,7 +250,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cellObjectPresets:
-  - Type: 1
+  - Type: 2
     CellObjects:
     - {fileID: 1667580473424028, guid: ab87233d5b38ed24ebac8146b225b021, type: 2}
     - {fileID: 1667580473424028, guid: ab87233d5b38ed24ebac8146b225b021, type: 2}

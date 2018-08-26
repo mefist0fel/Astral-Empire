@@ -51,7 +51,7 @@ public class GameController : MonoBehaviour, Game.IGameController {
     private void CreateDummyUnits(int count) {
         foreach (var faction in game.Factions) {
             for (int i = 0; i < count; i++) {
-                var randomCoord = game.Map.GetRandomCoord(Map.CellType.Land, new Coord((int)(wight * 0.4f), (int)(height * 0.4f)), new Coord((int)(wight * 0.6f), (int)(height * 0.6f)));
+                var randomCoord = game.Map.GetRandomCoord(MoveType.Land, new Coord((int)(wight * 0.4f), (int)(height * 0.4f)), new Coord((int)(wight * 0.6f), (int)(height * 0.6f)));
                 game.CreateUnit(faction, randomCoord);
             }
         }
