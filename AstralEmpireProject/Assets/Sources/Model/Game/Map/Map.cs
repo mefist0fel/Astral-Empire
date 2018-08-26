@@ -25,21 +25,81 @@ namespace Model {
 
         public Cell this[int x, int y] {
             get {
-                if (x >= 0 && y >= 0 && x < width && y < height) {
+                if (InMapRect(x, y))
                     return cells[x, y];
-                }
                 return new Cell();
             }
             set {
-                if (x >= 0 && y >= 0 && x < width && y < height) {
+                if (InMapRect(x, y))
                     cells[x, y] = value;
-                }
             }
         }
 
         public Cell this[Coord coord] {
             get { return this[coord.x, coord.y]; }
             set { this[coord.x, coord.y] = value; }
+        }
+
+        // -1: 1  ---  0: 1  ---  1: 1
+        // 	 |    ‾-_   |          |
+        // -1: 0  ---  0: 0  ---  1: 0
+        //   |          |    ‾-_   |
+        // -1:-1  ---  0:-1  ---  1:-1
+
+        public static readonly Coord[] Neigbhors = new Coord[] {
+            new Coord( 1, 0),
+            new Coord( 1,-1),
+            new Coord( 0,-1),
+            new Coord(-1, 0),
+            new Coord(-1, 1),
+            new Coord( 0, 1),
+        };
+
+        private bool InMapRect(int x, int y) {
+            return x >= 0 && y >= 0 && x < width && y < height;
+        }
+
+        public Map(MoveType[,] mapCellTypes) {
+            if (mapCellTypes == null)
+                throw new NullReferenceException("Map cell types array is empty");
+            width = mapCellTypes.GetLength(0);
+            height = mapCellTypes.GetLength(1);
+            if (width == 0 || height == 0)
+                throw new FormatException("need a valid two dimentional array of map cells");
+            cells = GenerateCells(mapCellTypes, width, height);
+            Navigation = new Navigation(this);
+        }
+
+        private Cell[,] GenerateCells(MoveType[,] cellTypes, int width, int height) {
+            var cells = new Cell[width, height];
+            for (int i = 0; i < width; i++) {
+                for (int j = 0; j < height; j++) {
+                    cells[i, j] = new Cell(cellTypes[i, j]);
+                }
+            }
+            return cells;
+        }
+
+        public void AddAction(AbstractAction action) {
+            actions.Add(action);
+            OnAction.InvokeSafe(action);
+        }
+
+        // TODO remove
+        public Coord GetRandomCoord(MoveType startType = MoveType.Land, Coord from = new Coord(), Coord to = new Coord()) {
+            if (from == Coord.Zero) {
+                from = new Coord(1, 1);
+            }
+            if (to == Coord.Zero) {
+                to = new Coord(height - 1, height - 1);
+            }
+            for (int i = 0; i < 50; i++) {
+                Coord coord = new Coord(Random.Range(from.x, to.x), Random.Range(from.y, to.y));
+                if (this[coord].Unit == null && this[coord].Type == startType) {
+                    return coord;
+                }
+            }
+            return new Coord();
         }
 
         public void MoveUnit(Coord from, Coord to, MarkersSet moveMarkers) {
@@ -71,52 +131,6 @@ namespace Model {
                 Debug.LogError("try kill unit - but cell is empty");
             }
 #endif
-        }
-
-        // TODO remove
-        public Coord GetRandomCoord(MoveType startType = MoveType.Land, Coord from = new Coord(), Coord to = new Coord()) {
-            if (from == Coord.Zero) {
-                from = new Coord(1, 1);
-            }
-            if (to == Coord.Zero) {
-                to = new Coord(height - 1, height - 1);
-            }
-            for (int i = 0; i < 50; i++) {
-                Coord coord = new Coord(Random.Range(from.x, to.x), Random.Range(from.y, to.y));
-                if (this[coord].Unit == null && this[coord].Type == startType) {
-                    return coord;
-                }
-            }
-            return new Coord();
-        }
-
-        // -1: 1  --  0: 1  --  1: 1
-        // 	 |         |         |
-        // -1: 0  --  0: 0  --  1: 0 
-        //   |         |         |
-        // -1:-1  --  0:-1  --  1:-1
-
-        public static readonly Coord[] Neigbhors = new Coord[] {
-            new Coord( 1, 0),
-            new Coord( 1,-1),
-            new Coord( 0,-1),
-            new Coord(-1, 0),
-            new Coord(-1, 1),
-            new Coord( 0, 1),
-        };
-
-        public Map(Cell[,] mapCells) {
-            width = mapCells.GetLength(0);
-            height = mapCells.GetLength(1);
-            if (mapCells == null || width == 0 || height == 0)
-                throw new FormatException("need a valid two dimentional array of map cells");
-            cells = mapCells;
-            Navigation = new Navigation(this);
-        }
-
-        public void AddAction(AbstractAction action) {
-            actions.Add(action);
-            OnAction.InvokeSafe(action);
         }
 
         public void AttackUnit(Unit unit, Unit attackedUnit) {

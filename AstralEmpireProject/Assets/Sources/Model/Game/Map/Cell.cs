@@ -1,4 +1,6 @@
-﻿namespace Model {
+﻿using System;
+
+namespace Model {
     public enum MoveType {
         None = 0,      // nothing - end of map move zone
         Water = 1,     // ships
@@ -14,6 +16,21 @@
         public Unit Unit = null;
         public MoveType Type = MoveType.None;
         public int MoveCost = 1;
+
+        public Cell(MoveType moveType = MoveType.None) {
+            Type = moveType;
+            MoveCost = GetMoveCost(Type);
+        }
+
+        private static int GetMoveCost(MoveType type) {
+            switch (type) {
+                default:
+                    return 1;
+                case MoveType.Rough:
+                case MoveType.Mountains:
+                    return 2;
+            }
+        }
 
         public Unit GetUnit() {
             if (HasUnit)
