@@ -21,6 +21,7 @@ namespace Model {
         public readonly int Width;
         public readonly int Height;
         public readonly CellType[,] Cells;
+        public readonly Vector2 size = new Vector2(1f, 0.866f);
 
         // -1: 1  ---  0: 1  ---  1: 1
         // 	 |    ‾-_   |          |
@@ -73,18 +74,45 @@ namespace Model {
                     if (i + j - 1 <= Width * 0.5f || i + j + 1 >= Width + Height - Width * 0.5f - 2) {
                         continue;
                     }
-                    if (Random.Range(0, 6) == 0) {
-                        cells[i, j] = CellType.Forest;
-                    }
-                    if (Random.Range(0, 8) == 0) {
+                    var realPosition = ToPosition(i, j);
+                    const float baseScale = 0.05f;
+                    var pointHeight = 
+                        ScaledNoise(realPosition, baseScale) * 1f + 
+                        ScaledNoise(realPosition, baseScale * 2f) * 0.5f +
+                        ScaledNoise(realPosition, baseScale * 4f) * 0.25f +
+                        ScaledNoise(realPosition, baseScale * 8f) * 0.125f +
+                        ScaledNoise(realPosition, baseScale * 16f) * 0.125f * 0.5f;
+                    if (pointHeight > 0.6f) {
                         cells[i, j] = CellType.Hills;
+                        if (Random.Range(0, 8) == 0)
+                            cells[i, j] = CellType.Mountains;
+                    } else if (pointHeight > 0.45f) {
+                        cells[i, j] = CellType.Grass;
+                        if (Random.Range(0, 6) == 0)
+                            cells[i, j] = CellType.Forest;
+                    } else {
+                        cells[i, j] = CellType.Ocean;
                     }
-                    if (Random.Range(0, 16) == 0) {
-                        cells[i, j] = CellType.Mountains;
-                    }
+                    // if (Random.Range(0, 6) == 0) {
+                    //     cells[i, j] = CellType.Forest;
+                    // }
+                    // if (Random.Range(0, 8) == 0) {
+                    //     cells[i, j] = CellType.Hills;
+                    // }
+                    // if (Random.Range(0, 16) == 0) {
+                    //     cells[i, j] = CellType.Mountains;
+                    // }
                 }
             }
             return cells;
+        }
+
+        private float ScaledNoise(Vector2 position, float scale) {
+            return Mathf.PerlinNoise(position.x * scale, position.y * scale) * 0.5f;
+        }
+
+        private Vector2 ToPosition(int x, int y) {
+            return new Vector2(x * size.x + y * size.x * 0.5f, y * size.y);
         }
 
         private void AddLandInBorders(CellType[,] cells) {
