@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 0}
-  m_IndirectSpecularColor: {r: 0.44657868, g: 0.49641263, b: 0.57481706, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657898, g: 0.4964133, b: 0.5748178, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -931,10 +931,43 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 522c6c7e6449ed74ebeec6a4900131ca, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  widht: 51
+  width: 51
   height: 51
   size: {x: 1, y: 0.866}
   mapShift: {x: -37.75, y: 0, z: -21}
+  pointsInCell: 3
+  hideNegativeValues: 1
+  noiseParams:
+  - Type: 1
+    Enabled: 1
+    Scale: 18
+    Offset: 0.1
+    Height: -0.4
+    Shift: {x: 0, y: 0}
+  - Type: 0
+    Enabled: 1
+    Scale: 8
+    Offset: -2
+    Height: 4
+    Shift: {x: 121.7, y: 137}
+  - Type: 0
+    Enabled: 1
+    Scale: 4
+    Offset: -1
+    Height: 2
+    Shift: {x: 101.14, y: 100}
+  - Type: 0
+    Enabled: 1
+    Scale: 2
+    Offset: -0.5
+    Height: 1
+    Shift: {x: 10, y: 1010}
+  - Type: 0
+    Enabled: 0
+    Scale: 1
+    Offset: 0
+    Height: 0.5
+    Shift: {x: 10, y: 1010}
 --- !u!4 &1400070749
 Transform:
   m_ObjectHideFlags: 0

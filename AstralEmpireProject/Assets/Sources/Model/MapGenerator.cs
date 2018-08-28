@@ -69,14 +69,18 @@ namespace Model {
             var cells = new CellType[widht, height];
             AddDefaultOcean(cells);
             AddLandInBorders(cells);
+            var centerPosition = ToPosition((Width - 1f) * 0.5f, (Height - 1f) * 0.5f);
             for (int i = 2; i < Width - 2; i++) {
                 for (int j = 2; j < Height - 2; j++) {
                     if (i + j - 1 <= Width * 0.5f || i + j + 1 >= Width + Height - Width * 0.5f - 2) {
                         continue;
                     }
                     var realPosition = ToPosition(i, j);
+                    var normalizedDistance = (realPosition - centerPosition).magnitude / (widht * 0.5f);
+                    var quadDistance = normalizedDistance * normalizedDistance * normalizedDistance * normalizedDistance * -0.6f + 0.1f;
                     const float baseScale = 0.05f;
-                    var pointHeight = 
+                    var pointHeight =
+                        quadDistance +
                         ScaledNoise(realPosition, baseScale) * 1f + 
                         ScaledNoise(realPosition, baseScale * 2f) * 0.5f +
                         ScaledNoise(realPosition, baseScale * 4f) * 0.25f +
@@ -111,7 +115,7 @@ namespace Model {
             return Mathf.PerlinNoise(position.x * scale, position.y * scale) * 0.5f;
         }
 
-        private Vector2 ToPosition(int x, int y) {
+        private Vector2 ToPosition(float x, float y) {
             return new Vector2(x * size.x + y * size.x * 0.5f, y * size.y);
         }
 
