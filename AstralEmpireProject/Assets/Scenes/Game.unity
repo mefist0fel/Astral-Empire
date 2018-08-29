@@ -599,8 +599,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d804875e11aed1142b0a2dd1f4fcd851, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  widht: 51
-  height: 51
+  widht: 61
+  height: 61
   mapView: {fileID: 134437006}
   playerController: {fileID: 872727458}
 --- !u!4 &1000062159

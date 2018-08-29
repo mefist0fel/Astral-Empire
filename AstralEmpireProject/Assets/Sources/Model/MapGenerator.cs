@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -70,45 +71,43 @@ namespace Model {
             AddDefaultOcean(cells);
             AddLandInBorders(cells);
             var centerPosition = ToPosition((Width - 1f) * 0.5f, (Height - 1f) * 0.5f);
-            for (int i = 2; i < Width - 2; i++) {
-                for (int j = 2; j < Height - 2; j++) {
-                    if (i + j - 1 <= Width * 0.5f || i + j + 1 >= Width + Height - Width * 0.5f - 2) {
+            const int cityDistance = 6;
+            var cityCoords = new List<Coord>();
+            var cityX = Width / (float)cityDistance;
+            var cityY = Height / (float)cityDistance;
+            for (int i = 1; i < cityX - 1; i++) {
+                for (int j = 1; j < cityY - 1; j++) {
+                    if (i + j <= cityX * 0.5f || i + j >= cityX + cityY - cityX * 0.5f - 1)
                         continue;
-                    }
-                    var realPosition = ToPosition(i, j);
-                    var normalizedDistance = (realPosition - centerPosition).magnitude / (widht * 0.5f);
-                    var quadDistance = normalizedDistance * normalizedDistance * normalizedDistance * normalizedDistance * -0.6f + 0.1f;
-                    const float baseScale = 0.05f;
-                    var pointHeight =
-                        quadDistance +
-                        ScaledNoise(realPosition, baseScale) * 1f + 
-                        ScaledNoise(realPosition, baseScale * 2f) * 0.5f +
-                        ScaledNoise(realPosition, baseScale * 4f) * 0.25f +
-                        ScaledNoise(realPosition, baseScale * 8f) * 0.125f +
-                        ScaledNoise(realPosition, baseScale * 16f) * 0.125f * 0.5f;
-                    if (pointHeight > 0.6f) {
-                        cells[i, j] = CellType.Hills;
-                        if (Random.Range(0, 8) == 0)
-                            cells[i, j] = CellType.Mountains;
-                    } else if (pointHeight > 0.45f) {
-                        cells[i, j] = CellType.Grass;
-                        if (Random.Range(0, 6) == 0)
-                            cells[i, j] = CellType.Forest;
-                    } else {
-                        cells[i, j] = CellType.Ocean;
-                    }
-                    // if (Random.Range(0, 6) == 0) {
-                    //     cells[i, j] = CellType.Forest;
-                    // }
-                    // if (Random.Range(0, 8) == 0) {
-                    //     cells[i, j] = CellType.Hills;
-                    // }
-                    // if (Random.Range(0, 16) == 0) {
-                    //     cells[i, j] = CellType.Mountains;
-                    // }
+                    var cityCoord = new Coord(i * cityDistance, j * cityDistance) + GetRandomCoordOffset(1);
+                    cityCoords.Add(cityCoord);
                 }
             }
+            for (int i = 1; i < Width - 1; i++) {
+                for (int j = 1; j < Height - 1; j++) {
+                    if (i + j <= Width * 0.5f || i + j >= Width + Height - Width * 0.5f - 2) {
+                        continue;
+                    }
+                    cells[i, j] = CellType.Grass;
+                    if (Random.Range(0, 6) == 0)
+                        cells[i, j] = CellType.Forest;
+                    if (Random.Range(0, 8) == 0)
+                        cells[i, j] = CellType.Hills;
+                    if (Random.Range(0, 16) == 0)
+                        cells[i, j] = CellType.Mountains;
+                }
+            }
+            foreach (var coord in cityCoords) {
+                cells[coord.x, coord.y] = CellType.Desert;
+            }
             return cells;
+        }
+
+        private Coord GetRandomCoordOffset(int offset) {
+            var randomX = Random.Range(-offset, offset + 1);
+            var randomY = Random.Range(-offset, offset + 1);
+            var randomZ = Random.Range(-offset, offset + 1);
+            return new Coord( randomX + randomZ, randomY - randomZ);
         }
 
         private float ScaledNoise(Vector2 position, float scale) {
