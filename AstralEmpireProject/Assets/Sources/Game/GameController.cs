@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Random = UnityEngine.Random;
 
-public class GameController : MonoBehaviour, Game.IGameController {
+public sealed class GameController : MonoBehaviour, Game.IGameController {
     [SerializeField]
     private int widht = 51;
     [SerializeField]
@@ -17,11 +17,13 @@ public class GameController : MonoBehaviour, Game.IGameController {
 
     private Game game;
     private Dictionary<Unit, UnitView> unitViews = new Dictionary<Unit, UnitView>();
+    private Dictionary<City, CityView> cityViews = new Dictionary<City, CityView>();
 
     private void Start () {
         var factions = new Faction[] {
-            new Faction(playerController, 0, Color.blue, Color.white, "Blue player"),
-            new Faction(playerController, 1, Color.red, Color.black, "Red player")
+            new Faction(new EmptyFactionController(), Color.gray, Color.white, "Neutral"),
+            new Faction(playerController, Color.blue, Color.white, "Blue player"),
+            new Faction(playerController, Color.red, Color.black, "Red player")
         };
 
         var mapGenerator = new MapGenerator(widht, height);
@@ -29,9 +31,16 @@ public class GameController : MonoBehaviour, Game.IGameController {
         map.OnAction += OnAddActionHandler;
         game = new Game(this, map, factions);
         mapView.Init(map, mapGenerator);
-        playerController.Init(game);
         CameraController.SetBorders(mapView.GetBorders(map));
-        CreateDummyUnits(10);
+        CreateDummyUnits(factions[1], 10);
+        CreateDummyUnits(factions[2], 10);
+        CreateCities(mapGenerator.CityCoords);
+    }
+
+    private void CreateCities(Coord[] cityCoords) {
+        foreach (var coord in cityCoords) {
+            game.CreateCity(coord);
+        }
     }
 
     private void OnAddActionHandler(Map.AbstractAction action) {
@@ -50,17 +59,19 @@ public class GameController : MonoBehaviour, Game.IGameController {
         }
     }
 
-    private void CreateDummyUnits(int count) {
-        foreach (var faction in game.Factions) {
-            for (int i = 0; i < count; i++) {
-                var randomCoord = game.Map.GetRandomCoord(MoveType.Land, new Coord((int)(widht * 0.4f), (int)(height * 0.4f)), new Coord((int)(widht * 0.6f), (int)(height * 0.6f)));
-                game.CreateUnit(faction, randomCoord);
-            }
+    private void CreateDummyUnits(Faction faction, int count) {
+        for (int i = 0; i < count; i++) {
+            var randomCoord = game.Map.GetRandomCoord(MoveType.Land, new Coord((int)(widht * 0.4f), (int)(height * 0.4f)), new Coord((int)(widht * 0.6f), (int)(height * 0.6f)));
+            game.CreateUnit(faction, randomCoord);
         }
     }
 
     public void OnAddUnit(Unit unit) {
         unitViews.Add(unit, CreateUnitView(transform, mapView, unit, "test_unit"));
+    }
+
+    public void OnAddCity(City city) {
+        cityViews.Add(city, CreateCityView(transform, mapView, city, "test_city"));
     }
 
     public void OnRemoveUnit(Unit unit) {
@@ -83,6 +94,19 @@ public class GameController : MonoBehaviour, Game.IGameController {
         unitView.transform.parent = parent;
         unitView.Init(unit, mapView.CellCoordToPosition(unit.Coordinate));
         return unitView;
+    }
+
+    private CityView CreateCityView(Transform parent, MapView mapView, City city, string prefabName) {
+        var unitPrefab = Resources.Load<CityView>(prefabName);
+        if (unitPrefab == null) {
+            Debug.LogError("Can't load unit " + prefabName);
+            return null;
+        }
+        CityView cityView = Instantiate(unitPrefab);
+        cityView.gameObject.SetActive(true);
+        cityView.transform.parent = parent;
+        cityView.Init(city, mapView.CellCoordToPosition(city.Coordinate));
+        return cityView;
     }
 
     private void Update () {

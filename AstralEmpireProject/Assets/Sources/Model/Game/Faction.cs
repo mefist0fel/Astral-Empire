@@ -1,16 +1,17 @@
 ﻿using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using System;
 
 namespace Model {
     public sealed class Faction {
         public interface IController {
+            void OnStartGame(Game game);
             void OnStartTurn(Faction faction);
             void OnEndTurn();
             void OnChangeStatus();
         }
 
-        public readonly int SideId = 0;
         public readonly string Name;
         public readonly Color BaseColor = Color.white;
         public readonly Color FactionColor = Color.blue;
@@ -20,11 +21,14 @@ namespace Model {
 
         public int UnitCount { get { return Units.Count(unit => unit != null && unit.IsAlive); }}
 
-        public Faction(IController turnController, int sideId, Color baseColor, Color factionColor, string name = "") {
+        public void OnStartGame(Game game) {
+            controller.OnStartGame(game);
+        }
+
+        public Faction(IController turnController, Color baseColor, Color factionColor, string name = "") {
             Name = name;
             BaseColor = baseColor;
             FactionColor = factionColor;
-            SideId = sideId;
             controller = turnController;
         }
 

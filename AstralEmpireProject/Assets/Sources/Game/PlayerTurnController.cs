@@ -43,7 +43,7 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
     private MarkersSet moveZone = new MarkersSet();
     private MarkersSet fireZone = new MarkersSet();
 
-    public void Init(Game game) {
+    public void OnStartGame(Game game) {
         this.game = game;
     } 
 

@@ -22,7 +22,8 @@ namespace Model {
         public readonly int Width;
         public readonly int Height;
         public readonly CellType[,] Cells;
-        public readonly Vector2 size = new Vector2(1f, 0.866f);
+        public readonly Coord[] CityCoords;
+        private readonly Vector2 size = new Vector2(1f, 0.866f);
 
         // -1: 1  ---  0: 1  ---  1: 1
         // 	 |    ‾-_   |          |
@@ -33,7 +34,7 @@ namespace Model {
         public MapGenerator(int widht = defaultSize, int height = defaultSize) {
             Width = widht;
             Height = height;
-            Cells = GenerateCells(Width, Height);
+            Cells = GenerateCells(Width, Height, out CityCoords);
         }
 
         public MoveType[,] GenerateCells() {
@@ -66,7 +67,7 @@ namespace Model {
             }
         }
 
-        private CellType[,] GenerateCells(int widht, int height) {
+        private CellType[,] GenerateCells(int widht, int height, out Coord[] cities) {
             var cells = new CellType[widht, height];
             AddDefaultOcean(cells);
             AddLandInBorders(cells);
@@ -98,8 +99,9 @@ namespace Model {
                 }
             }
             foreach (var coord in cityCoords) {
-                cells[coord.x, coord.y] = CellType.Desert;
+                cells[coord.x, coord.y] = CellType.Grass;
             }
+            cities = cityCoords.ToArray();
             return cells;
         }
 

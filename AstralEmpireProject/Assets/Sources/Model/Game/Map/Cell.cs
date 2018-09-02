@@ -14,6 +14,7 @@ namespace Model {
     /// </summary>
     public sealed class Cell {
         public Unit Unit = null;
+        public City City = null;
         public MoveType Type = MoveType.None;
         public int MoveCost = 1;
 

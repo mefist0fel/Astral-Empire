@@ -1,10 +1,12 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 
 namespace Model {
     public sealed class Game {
         public readonly Map Map;
         public readonly Faction[] Factions;
         private readonly List<Unit> Units = new List<Unit>();
+        private readonly List<City> Cities = new List<City>();
         private readonly IGameController controller;
 
         private int currentFactionId = 0;
@@ -14,6 +16,8 @@ namespace Model {
             controller = gameController;
             Map = map;
             Factions = factions;
+            foreach (var faction in factions)
+                faction.OnStartGame(this);
             CurrentFaction.OnStartTurn();
         }
 
@@ -23,6 +27,12 @@ namespace Model {
             Units.Add(unit);
             faction.Units.Add(unit);
             controller.OnAddUnit(unit);
+        }
+
+        public void CreateCity(Coord position) {
+            var city = new City(Map, position);
+            Cities.Add(city);
+            controller.OnAddCity(city);
         }
 
         public void EndTurn() {
@@ -37,6 +47,7 @@ namespace Model {
             void OnRemoveUnit(Unit unit);
             void OnEndTurn(Faction faction);
             void OnStartTurn(Faction faction);
+            void OnAddCity(City city);
         }
     }
 }
