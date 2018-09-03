@@ -10,6 +10,8 @@ public sealed class UnitView : MonoBehaviour {
     private Unit unit = null;
     [SerializeField]
     private Material deathMaterial = null;
+    [SerializeField]
+    private Renderer[] coloredRenderers = null;
 
     [SerializeField]
     private Vector3 hitOffset = new Vector3(0, 0.2f, 0);
