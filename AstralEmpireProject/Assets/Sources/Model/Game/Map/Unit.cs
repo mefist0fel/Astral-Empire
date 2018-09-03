@@ -1,11 +1,19 @@
-﻿using System;
-using System.Collections.Generic;
-using UnityEngine;
+﻿using System.Collections.Generic;
 using Random = UnityEngine.Random;
 
 namespace Model {
-    [Serializable]
     public sealed class Unit {
+        public sealed class Data {
+            public readonly string Id;
+            public readonly int HitPoints;
+            public readonly int ActionPoints;
+            public Data(string id, int hitPoints, int actionPoints = 3) {
+                Id = id;
+                HitPoints = hitPoints;
+                ActionPoints = actionPoints;
+            }
+        }
+
         public int HitPoints { get; private set; }
         public int MaxHitPoints { get; private set; }
         public int ActionPoints { get; private set; }
@@ -28,13 +36,13 @@ namespace Model {
         public List<Coord> movePath = new List<Coord>();
         private Map map = null;
 
-        public Unit(string id, int maxHitPoints, int maxActionPoints) {
+        public Unit(Data data) {
             Coordinate = new Coord();
-            HitPoints = maxHitPoints;
-            MaxHitPoints = maxHitPoints;
-            ActionPoints = maxActionPoints;
-            MaxActionPoints = maxActionPoints;
-            Id = id;
+            HitPoints = data.HitPoints;
+            MaxHitPoints = data.HitPoints;
+            ActionPoints = data.ActionPoints;
+            MaxActionPoints = data.ActionPoints;
+            Id = data.Id;
             AttackCount = 3;
             Power = 5;
         }

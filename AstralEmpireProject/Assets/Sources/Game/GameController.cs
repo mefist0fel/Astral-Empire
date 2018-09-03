@@ -21,7 +21,6 @@ public sealed class GameController : MonoBehaviour, Game.IGameController {
 
     private void Start () {
         var factions = new Faction[] {
-            new Faction(new EmptyFactionController(), Color.gray, Color.white, "Neutral"),
             new Faction(playerController, Color.blue, Color.white, "Blue player"),
             new Faction(playerController, Color.red, Color.black, "Red player")
         };
@@ -32,8 +31,8 @@ public sealed class GameController : MonoBehaviour, Game.IGameController {
         game = new Game(this, map, factions);
         mapView.Init(map, mapGenerator);
         CameraController.SetBorders(mapView.GetBorders(map));
-        CreateDummyUnits(factions[1], 10);
-        CreateDummyUnits(factions[2], 10);
+        CreateDummyUnits(factions[0], 4);
+        CreateDummyUnits(factions[1], 4);
         CreateCities(mapGenerator.CityCoords);
     }
 
@@ -62,12 +61,16 @@ public sealed class GameController : MonoBehaviour, Game.IGameController {
     private void CreateDummyUnits(Faction faction, int count) {
         for (int i = 0; i < count; i++) {
             var randomCoord = game.Map.GetRandomCoord(MoveType.Land, new Coord((int)(widht * 0.4f), (int)(height * 0.4f)), new Coord((int)(widht * 0.6f), (int)(height * 0.6f)));
-            game.CreateUnit(faction, randomCoord);
+            game.CreateUnit(new Unit.Data("warrior", 2, 3), randomCoord, faction);
+            randomCoord = game.Map.GetRandomCoord(MoveType.Land, new Coord((int)(widht * 0.4f), (int)(height * 0.4f)), new Coord((int)(widht * 0.6f), (int)(height * 0.6f)));
+            game.CreateUnit(new Unit.Data("horseman", 3, 4), randomCoord, faction);
+            randomCoord = game.Map.GetRandomCoord(MoveType.Land, new Coord((int)(widht * 0.4f), (int)(height * 0.4f)), new Coord((int)(widht * 0.6f), (int)(height * 0.6f)));
+            game.CreateUnit(new Unit.Data("archer", 2, 3), randomCoord, faction);
         }
     }
 
     public void OnAddUnit(Unit unit) {
-        unitViews.Add(unit, CreateUnitView(transform, mapView, unit, "test_unit"));
+        unitViews.Add(unit, CreateUnitView(transform, mapView, unit, unit.Id));
     }
 
     public void OnAddCity(City city) {
@@ -84,7 +87,7 @@ public sealed class GameController : MonoBehaviour, Game.IGameController {
     }
 
     public static UnitView CreateUnitView(Transform parent, MapView mapView, Unit unit, string prefabName) {
-        var unitPrefab = Resources.Load<UnitView>(prefabName);
+        var unitPrefab = Resources.Load<UnitView>("Units/" + prefabName);
         if (unitPrefab == null) {
             Debug.LogError("Can't load unit " + prefabName);
             return null;

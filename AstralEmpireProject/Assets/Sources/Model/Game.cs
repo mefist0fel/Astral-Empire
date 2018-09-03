@@ -1,10 +1,12 @@
 ﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
 
 namespace Model {
     public sealed class Game {
         public readonly Map Map;
         public readonly Faction[] Factions;
+        public readonly Faction NeutralFaction = new Faction(new EmptyFactionController(), Color.gray, Color.white, "Neutral");
         private readonly List<Unit> Units = new List<Unit>();
         private readonly List<City> Cities = new List<City>();
         private readonly IGameController controller;
@@ -21,8 +23,8 @@ namespace Model {
             CurrentFaction.OnStartTurn();
         }
 
-        public void CreateUnit(Faction faction, Coord position) {
-            var unit = new Unit("Soldier", 3, 2);
+        public void CreateUnit(Unit.Data data, Coord position, Faction faction) {
+            var unit = new Unit(data);
             unit.Init(Map, faction, position);
             Units.Add(unit);
             faction.Units.Add(unit);
