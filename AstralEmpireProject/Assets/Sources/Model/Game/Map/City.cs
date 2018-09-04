@@ -10,6 +10,9 @@ namespace Model {
         public readonly Coord Coordinate;
         public string Name { get; private set; }
         public Faction Faction { get; private set; }
+
+        public readonly Unit Garrison;
+
         public event Action<Faction> OnSetFaction;
 
         public City(Map controlMap, Faction faction, Coord position) {
@@ -19,6 +22,7 @@ namespace Model {
             Coordinate = position;
             map = controlMap;
             map[Coordinate].City = this; // add Set city action
+            Garrison = new Unit(new Unit.Data("garrison", 2, 1));
         }
 
         public void SetFaction(Faction faction) {

@@ -47,8 +47,16 @@ namespace Model {
             return (HasUnit && Unit.Faction == unit.Faction);
         }
 
-        public bool HasEnemyUnit(Unit unit) {
-            return (HasUnit && Unit.Faction != unit.Faction);
+        public bool HasEnemyUnit(Faction faction) {
+            return (HasUnit && Unit.Faction != faction);
+        }
+
+        public bool HasCity {
+            get { return (City != null); }
+        }
+
+        public bool HasEnemyCity(Faction faction) {
+            return (HasCity && City.Faction != faction);
         }
 
         public bool CanMoveAcrossBy(Unit unit) {

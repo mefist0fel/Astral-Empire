@@ -174,7 +174,7 @@ namespace Model {
                     var distance = CubeDistance(i, j);
                     var distanceIsActual = unit.MinFireRange <= distance && distance <= unit.MaxFireRange;
                     var currentCoord = new Coord(i, j) + coord;
-                    var hasEnemyUnit = this[currentCoord].HasEnemyUnit(unit);
+                    var hasEnemyUnit = this[currentCoord].HasEnemyUnit(unit.Faction);
                     if (distanceIsActual && hasEnemyUnit)
                         fireMarkers[currentCoord] = 1;
                 }

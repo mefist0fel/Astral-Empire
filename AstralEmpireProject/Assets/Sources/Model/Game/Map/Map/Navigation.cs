@@ -62,7 +62,9 @@ namespace Model.PathFind {
                 return;
             if (actionPoints <= moveMarkers[coord]) // cell already pacified
                 return;
-            if (cell.HasEnemyUnit(unit)) // enemy unit on cell - can move to cell but can't move from it later
+            if (cell.HasEnemyUnit(unit.Faction)) // enemy unit on cell
+                return;
+            if (cell.HasEnemyCity(unit.Faction)) // enemy city on cell
                 return;
             moveMarkers[coord] = actionPoints;
             for (int i = 0; i < Neigbhors.Length; i++) {
@@ -125,7 +127,11 @@ namespace Model.PathFind {
                     neigbhorCoord = currentCoord + Neigbhors[i];
                     neigbhorCell = map[neigbhorCoord];
                     distance = distanceToId[currentCoord.x, currentCoord.y] + neigbhorCell.MoveCost;
-                    if (distance < distanceToId[neigbhorCoord.x, neigbhorCoord.y] && neigbhorCell.CanMoveAcrossBy(unit) && (!neigbhorCell.HasEnemyUnit(unit) || neigbhorCoord == endCoord)) {
+
+                    if (distance < distanceToId[neigbhorCoord.x, neigbhorCoord.y] &&
+                        neigbhorCell.CanMoveAcrossBy(unit) &&
+                        (!neigbhorCell.HasEnemyCity(unit.Faction) || neigbhorCoord == endCoord) &&
+                        (!neigbhorCell.HasEnemyUnit(unit.Faction) || neigbhorCoord == endCoord)) {
                         frontier.Enqueue(neigbhorCoord, (distance + HeuristicDistance(neigbhorCoord, endCoord)) * 2 + (neigbhorCell.HasUnit ? 1 : 0));
                         cameFromCoord[neigbhorCoord.x, neigbhorCoord.y] = currentCoord;
                         distanceToId[neigbhorCoord.x, neigbhorCoord.y] = distance;
