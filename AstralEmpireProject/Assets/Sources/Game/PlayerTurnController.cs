@@ -3,6 +3,7 @@ using Model;
 using UnityEngine;
 using System.Linq;
 using System.Collections.Generic;
+using System.Text;
 
 public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
     [SerializeField]
@@ -257,16 +258,30 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
     }
 
     private void ShowStatus(Cell cell, Coord coord) {
-        var status = coord.ToString() + " " + cell.Type.ToString() + "\n";
+        var status = new StringBuilder();
+        status.AppendFormat("{0} {1}\n", cell.Type, coord);
+        //var status = cell.Type.ToString() + coord.ToString() + "\n";
+        var city = cell.City;
+        if (city != null) {
+            if (city.Faction == currentFaction) {
+                status.AppendFormat("Allied city: \"{0}\"\n", city.Name);
+            } else {
+                if (city.Faction == game.NeutralFaction) {
+                    status.AppendFormat("Neutral city: \"{0}\"\n", city.Name);
+                } else {
+                    status.AppendFormat("Enemy city: \"{0}\"\n", city.Name);
+                }
+            }
+        }
         var unit = cell.Unit;
         if (unit != null) {
             if (unit.Faction == currentFaction) {
-                status += unit.Id + " hp: " + unit.HitPoints + "/" + unit.MaxHitPoints;
+                status.AppendFormat("{0} hp:{1}/{2}\n", unit.Id, unit.HitPoints, unit.MaxHitPoints);
             } else {
-                status += "enemy hp: " + unit.HitPoints + "/" + unit.MaxHitPoints;
+                status.AppendFormat("Enemy hp:{1}/{2}\n", unit.Id, unit.HitPoints, unit.MaxHitPoints);
             }
         }
-        gameUI.SetStatusText(status);
+        gameUI.SetStatusText(status.ToString());
     }
 
     public void OnChangeStatus() {}
