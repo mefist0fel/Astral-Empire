@@ -31,9 +31,23 @@ public sealed class GameController : MonoBehaviour, Game.IGameController {
         game = new Game(this, map, factions);
         mapView.Init(map, mapGenerator);
         CameraController.SetBorders(mapView.GetBorders(map));
-        CreateDummyUnits(factions[0], 4);
-        CreateDummyUnits(factions[1], 4);
+       // CreateDummyUnits(factions[0], 4);
+       // CreateDummyUnits(factions[1], 4);
         CreateCities(mapGenerator.CityCoords);
+        var randomPlayerCity = Random.Range(0, game.Cities.Count);
+        int randomEnemyCity;
+        do {
+            randomEnemyCity = Random.Range(0, game.Cities.Count);
+        }
+        while (randomEnemyCity == randomPlayerCity);
+        game.Cities[randomPlayerCity].SetFaction(factions[0]);
+        game.Cities[randomEnemyCity].SetFaction(factions[1]);
+        SetCameraTo(game.Cities[randomPlayerCity]);
+    }
+
+    private void SetCameraTo(City city) {
+        var startPosition = mapView.CellCoordToPosition(city.Coordinate);
+        CameraController.SetPosition(startPosition);
     }
 
     private void CreateCities(Coord[] cityCoords) {

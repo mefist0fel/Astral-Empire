@@ -7,8 +7,9 @@ namespace Model {
         public readonly Map Map;
         public readonly Faction[] Factions;
         public readonly Faction NeutralFaction = new Faction(new EmptyFactionController(), Color.gray, Color.white, "Neutral");
-        private readonly List<Unit> Units = new List<Unit>();
-        private readonly List<City> Cities = new List<City>();
+        public readonly List<Unit> Units = new List<Unit>();
+        public readonly List<City> Cities = new List<City>();
+
         private readonly IGameController controller;
 
         private int currentFactionId = 0;
@@ -31,8 +32,9 @@ namespace Model {
             controller.OnAddUnit(unit);
         }
 
-        public void CreateCity(Coord position) {
-            var city = new City(Map, position);
+        public void CreateCity(Coord position, Faction faction = null) {
+            faction = faction ?? NeutralFaction;
+            var city = new City(Map, faction, position);
             Cities.Add(city);
             controller.OnAddCity(city);
         }
