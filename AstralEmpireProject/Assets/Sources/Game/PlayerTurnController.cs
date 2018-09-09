@@ -56,7 +56,7 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
     }
 
     private void CancelUnitSelectionHandler() {
-        SelectUnit(null);
+        SelectUnit(null, null);
     }
 
     private void OnDestroy() {
@@ -81,7 +81,7 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
             return;
         ShowStatus(cell, coord);
         if (UnitAlreadySelected(cell, coord)) {
-            SelectUnit(null);
+            SelectUnit(null, cell.City);
             return;
         }
         if (selectedUnit != null && !cell.HasAlliedUnit(selectedUnit)) {
@@ -91,7 +91,7 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
                 GeneratePath(coord);
             }
         } else {
-            SelectUnit(cell.Unit);
+            SelectUnit(cell.Unit, cell.City);
         }
     }
 
@@ -99,7 +99,7 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
         return cell.GetUnit() == selectedUnit;
     }
 
-    private void SelectUnit(Unit unit) {
+    private void SelectUnit(Unit unit, City city) {
         selectedUnit = unit;
         moveZone.Clear();
         fireZone.Clear();
@@ -117,6 +117,9 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
         fireSelector.Hide();
         if (unit == null) {
             gameUI.ShowUnit(null);
+            if (city != null && city.Faction == currentFaction) {
+                CityUI.ShowCityUI(city);
+            }
             return;
         }
         if (unit.Faction != currentFaction) {
@@ -202,9 +205,9 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
             RemoveTargetPoint(selectedUnit);
         }
         if (selectedUnit.ActionPoints > 0) {
-            SelectUnit(selectedUnit);
+            SelectUnit(selectedUnit, null);
         } else {
-            SelectUnit(null);
+            SelectUnit(null, null);
         }
     }
 
@@ -288,7 +291,7 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
 
     public void OnEndTurn() {
         currentFaction = null;
-        SelectUnit(null);
+        SelectUnit(null, null);
     }
 
     public void OnStartTurn(Faction faction) {

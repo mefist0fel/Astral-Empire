@@ -62,7 +62,7 @@ namespace Model {
             map[Coordinate].Unit = this; // add Set unit action
         }
 
-        public void MoveTo(Coord newCoord, int actionPoints) {
+        public void SetPositionTo(Coord newCoord, int actionPoints = 0) {
             Coordinate = newCoord;
             ActionPoints -= actionPoints;
         }

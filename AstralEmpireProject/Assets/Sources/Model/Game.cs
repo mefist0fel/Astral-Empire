@@ -5,6 +5,7 @@ using UnityEngine;
 namespace Model {
     public sealed class Game {
         public readonly Map Map;
+        public readonly ProjectBuilder ProjectBuilder;
         public readonly Faction[] Factions;
         public readonly Faction NeutralFaction = new Faction(new EmptyFactionController(), Color.gray, Color.white, "Neutral");
         public readonly List<Unit> Units = new List<Unit>();
@@ -18,6 +19,7 @@ namespace Model {
         public Game(IGameController gameController, Map map, Faction[] factions) {
             controller = gameController;
             Map = map;
+            ProjectBuilder = new ProjectBuilder(this);
             Factions = factions;
             foreach (var faction in factions)
                 faction.OnStartGame(this);
@@ -34,7 +36,8 @@ namespace Model {
 
         public void CreateCity(Coord position, Faction faction = null) {
             faction = faction ?? NeutralFaction;
-            var city = new City(Map, faction, position);
+            var city = new City(ProjectBuilder, faction, position);
+            Map[position].City = city; // TODO - move out there add Set city action
             Cities.Add(city);
             controller.OnAddCity(city);
         }

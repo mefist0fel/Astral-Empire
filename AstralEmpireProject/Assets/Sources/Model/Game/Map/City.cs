@@ -1,33 +1,62 @@
 ﻿using System;
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
 namespace Model {
     public sealed class City {
-        private readonly Map map;
         public readonly Coord Coordinate;
+        private readonly Map map;
+        private readonly IProjectBuilder projectBuilder;
         public string Name { get; private set; }
         public Faction Faction { get; private set; }
 
-        public readonly Unit Garrison;
+        public int IndustyProduction { get; private set; }
 
+        public sealed class BuildProject {
+            public string ID;
+            public int IndustryNeed;
+        }
+
+        public BuildProject CurrentProject { get; private set; }
+
+        public readonly Unit Garrison;
         public event Action<Faction> OnSetFaction;
 
-        public City(Map controlMap, Faction faction, Coord position) {
-            map = controlMap;
+        public City(IProjectBuilder builder, Faction faction, Coord position) {
+            projectBuilder = builder;
             Name = "City " + Random.Range(0, 10000);
-            Faction = faction;
+            SetFaction(faction);
             Coordinate = position;
-            map = controlMap;
-            map[Coordinate].City = this; // add Set city action
             Garrison = new Unit(new Unit.Data("garrison", 2, 1));
         }
 
         public void SetFaction(Faction faction) {
+            if (Faction != null)
+                Faction.RemoveCity(this);
             Faction = faction;
             OnSetFaction.InvokeSafe(faction);
+            if (Faction != null)
+                Faction.AddCity(this);
+        }
+
+        public void OnStartTurn () {
+            ProcessCurrentProject(IndustyProduction);
+        }
+
+        private void ProcessCurrentProject(int industy) {
+            if (CurrentProject == null) {
+                Debug.LogError("Current project in city " + Name + " is empty");
+                return;
+            }
+            CurrentProject.IndustryNeed -= IndustyProduction;
+            if (CurrentProject.IndustryNeed <= 0) {
+                projectBuilder.EndProjectBuilding(CurrentProject.ID, this);
+                CurrentProject = null;
+            }
+        }
+
+        public interface IProjectBuilder {
+            void EndProjectBuilding(string projectId, City city);
         }
     }
 }

@@ -111,7 +111,7 @@ namespace Model {
                 var actionPoints = this[from].Unit.ActionPoints - moveMarkers[to];
                 this[to].Unit = this[from].Unit;
                 this[from].Unit = null;
-                this[to].Unit.MoveTo(to, actionPoints);
+                this[to].Unit.SetPositionTo(to, actionPoints);
                 AddAction(new MoveAction(this[to].Unit, from, to, actionPoints, path));
             }
 #if UNITY_EDITOR

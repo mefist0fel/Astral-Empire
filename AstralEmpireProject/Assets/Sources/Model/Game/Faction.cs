@@ -16,6 +16,7 @@ namespace Model {
         public readonly Color BaseColor = Color.white;
         public readonly Color FactionColor = Color.blue;
         public List<Unit> Units = new List<Unit>();
+        public List<City> Cities = new List<City>();
 
         private IController controller = null;
 
@@ -33,15 +34,20 @@ namespace Model {
         }
 
         public void OnStartTurn() {
-            foreach (var unit in Units) {
-                if (unit == null)
-                    continue;
-                if (unit.IsAlive)
-                    unit.OnStartTurn();
-            }
-            if (controller != null) {
+            foreach (var unit in Units)
+                unit.OnStartTurn();
+            foreach (var city in Cities)
+                city.OnStartTurn();
+            if (controller != null)
                 controller.OnStartTurn(this);
-            }
+        }
+
+        public void AddCity(City city) {
+            Cities.Add(city);
+        }
+
+        public void RemoveCity(City city) {
+            Cities.Remove(city);
         }
 
         public void OnChangeStatus() {
