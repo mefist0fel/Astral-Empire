@@ -669,10 +669,6 @@ Prefab:
       propertyPath: m_Pivot.y
       value: 0.5
       objectReference: {fileID: 0}
-    - target: {fileID: 1241764375361342, guid: 745c653589cc00141a36925c0af464f7, type: 2}
-      propertyPath: m_IsActive
-      value: 0
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 745c653589cc00141a36925c0af464f7, type: 2}
   m_IsPrefabAsset: 0
@@ -1040,7 +1036,6 @@ MonoBehaviour:
   height: 51
   size: {x: 1, y: 0.866}
   mapShift: {x: -37.75, y: 0, z: -21}
-  pointsInCell: 3
   hideNegativeValues: 1
   noiseParams:
   - Type: 1

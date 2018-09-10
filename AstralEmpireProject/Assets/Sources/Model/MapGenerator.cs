@@ -71,7 +71,7 @@ namespace Model {
             var cells = new CellType[widht, height];
             AddDefaultOcean(cells);
             AddLandInBorders(cells);
-            var centerPosition = ToPosition((Width - 1f) * 0.5f, (Height - 1f) * 0.5f);
+            // var centerPosition = ToPosition((Width - 1f) * 0.5f, (Height - 1f) * 0.5f);
             const int cityDistance = 6;
             var cityCoords = new List<Coord>();
             var cityX = Width / (float)cityDistance;

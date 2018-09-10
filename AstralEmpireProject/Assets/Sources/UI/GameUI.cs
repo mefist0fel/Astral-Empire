@@ -15,7 +15,6 @@ public sealed class GameUI : UILayer {
     public event Action OnCancelUnitClick;
 
     protected override void OnShow() {
-        endTurnButton.onClick.AddListener(OnEndTurnButtonClick);
         ShowUnit();
     }
 
@@ -39,6 +38,7 @@ public sealed class GameUI : UILayer {
 
     private void Start () {
         unitPanel.OnCancelUnitClick += OnCancelUnitClickHandler;
+        endTurnButton.onClick.AddListener(OnEndTurnButtonClick);
     }
 
     private void OnCancelUnitClickHandler() {

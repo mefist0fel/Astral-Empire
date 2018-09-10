@@ -14,8 +14,8 @@ public class MapGeneratorPreview : MonoBehaviour {
     private Vector2 size = Vector2.one;
     [SerializeField]
     private Vector3 mapShift = Vector3.zero;
-    [SerializeField]
-    private int pointsInCell = 3;
+   // [SerializeField]
+   // private int pointsInCell = 3;
     [SerializeField]
     private bool hideNegativeValues = false;
     [SerializeField]

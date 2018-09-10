@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Model {
-    public abstract class AbstractProgect {
+    public abstract class AbstractProject {
         public readonly string ID;
         public readonly int Cost;
 
-        public AbstractProgect(string id, int cost) {
+        public AbstractProject(string id, int cost) {
             ID = id;
             Cost = cost;
         }

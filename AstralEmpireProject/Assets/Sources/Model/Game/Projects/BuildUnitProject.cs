@@ -4,7 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 
 namespace Model {
-    public sealed class BuildUnitProject : AbstractProgect {
+    public sealed class BuildUnitProject : AbstractProject {
         public readonly Unit.Data UnitData;
 
         public BuildUnitProject(string id, int cost, Unit.Data unitData) : base(id, cost) {

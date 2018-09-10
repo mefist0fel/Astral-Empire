@@ -76,11 +76,13 @@ public sealed class GameController : MonoBehaviour, Game.IGameController {
     private void CreateDummyUnits(Faction faction, int count) {
         for (int i = 0; i < count; i++) {
             var randomCoord = game.Map.GetRandomCoord(MoveType.Land, new Coord((int)(widht * 0.4f), (int)(height * 0.4f)), new Coord((int)(widht * 0.6f), (int)(height * 0.6f)));
-            game.CreateUnit(new Unit.Data("warrior", 2, 3), randomCoord, faction);
+            game.CreateUnit(new Unit.Data("infantry", 2, 3), randomCoord, faction);
             randomCoord = game.Map.GetRandomCoord(MoveType.Land, new Coord((int)(widht * 0.4f), (int)(height * 0.4f)), new Coord((int)(widht * 0.6f), (int)(height * 0.6f)));
-            game.CreateUnit(new Unit.Data("horseman", 3, 4), randomCoord, faction);
+            game.CreateUnit(new Unit.Data("heavy_infantry", 3, 4), randomCoord, faction);
             randomCoord = game.Map.GetRandomCoord(MoveType.Land, new Coord((int)(widht * 0.4f), (int)(height * 0.4f)), new Coord((int)(widht * 0.6f), (int)(height * 0.6f)));
-            game.CreateUnit(new Unit.Data("archer", 2, 3), randomCoord, faction);
+            game.CreateUnit(new Unit.Data("AIV", 2, 3), randomCoord, faction);
+            randomCoord = game.Map.GetRandomCoord(MoveType.Land, new Coord((int)(widht * 0.4f), (int)(height * 0.4f)), new Coord((int)(widht * 0.6f), (int)(height * 0.6f)));
+            game.CreateUnit(new Unit.Data("tank", 2, 3), randomCoord, faction);
         }
     }
 

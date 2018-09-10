@@ -118,7 +118,7 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
         if (unit == null) {
             gameUI.ShowUnit(null);
             if (city != null && city.Faction == currentFaction) {
-                CityUI.ShowCityUI(city);
+                CityUI.ShowCityUI(city, game);
             }
             return;
         }

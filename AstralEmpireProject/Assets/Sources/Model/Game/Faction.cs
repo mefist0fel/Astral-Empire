@@ -36,8 +36,10 @@ namespace Model {
         public void OnStartTurn() {
             foreach (var unit in Units)
                 unit.OnStartTurn();
-            foreach (var city in Cities)
+            foreach (var city in Cities) {
                 city.OnStartTurn();
+                Debug.Log("Faction " + Name + " city " + city.Name);
+            }
             if (controller != null)
                 controller.OnStartTurn(this);
         }

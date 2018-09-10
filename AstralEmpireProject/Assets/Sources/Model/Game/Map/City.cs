@@ -28,15 +28,20 @@ namespace Model {
             SetFaction(faction);
             Coordinate = position;
             Garrison = new Unit(new Unit.Data("garrison", 2, 1));
+            IndustyProduction = 1;
         }
 
         public void SetFaction(Faction faction) {
             if (Faction != null)
                 Faction.RemoveCity(this);
             Faction = faction;
-            OnSetFaction.InvokeSafe(faction);
             if (Faction != null)
                 Faction.AddCity(this);
+            OnSetFaction.InvokeSafe(faction);
+        }
+
+        public void SetProject(string id, int industryCost) {
+            CurrentProject = new BuildProject() { ID = id, IndustryNeed = industryCost };
         }
 
         public void OnStartTurn () {
