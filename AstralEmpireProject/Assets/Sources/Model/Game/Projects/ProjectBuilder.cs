@@ -6,19 +6,23 @@ using UnityEngine;
 namespace Model {
     public sealed class ProjectBuilder : City.IProjectBuilder {
         private readonly Game game;
-        public readonly AbstractProject[] AvailableProjects = new AbstractProject[] {
-            new BuildUnitProject("infantry", 5, new Unit.Data("infantry", 2, 3)),
-            new BuildUnitProject("heavy_infantry", 7, new Unit.Data("heavy_infantry", 3, 3)),
-            new BuildUnitProject("AIV", 10, new Unit.Data("AIV", 2, 3)),
-            new BuildUnitProject("tank", 20, new Unit.Data("tank", 2, 3)),
-        };
+        public readonly AbstractProject[] Projects;
 
-        public ProjectBuilder(Game controlGame) {
-            game = controlGame;
+        private readonly Dictionary<string, AbstractProject> indexedProjects = new Dictionary<string, AbstractProject>();
+
+        public ProjectBuilder(AbstractProject[] availableProjects) {
+            Projects = availableProjects;
+            foreach (var project in Projects)
+                indexedProjects.Add(project.ID, project);
         }
 
         public void EndProjectBuilding(string projectId, City city) {
-            Debug.LogError("City " + city.Name + " ended " + projectId);
+            if (!indexedProjects.ContainsKey(projectId)) {
+                Debug.LogError("Project " + projectId + " is not exist in list of available projects");
+                return;
+            }
+            var project = indexedProjects[projectId];
+            project.EndBuilding(city);
         }
     }
 }

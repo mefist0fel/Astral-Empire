@@ -19,11 +19,22 @@ namespace Model {
         public Game(IGameController gameController, Map map, Faction[] factions) {
             controller = gameController;
             Map = map;
-            ProjectBuilder = new ProjectBuilder(this);
+            var projects = LoadProjects();
+            ProjectBuilder = new ProjectBuilder(projects);
             Factions = factions;
             foreach (var faction in factions)
                 faction.OnStartGame(this);
             CurrentFaction.OnStartTurn();
+        }
+
+        private AbstractProject[] LoadProjects() {
+            var projects = new AbstractProject[] {
+                new BuildUnitProject("infantry", 5, this, new Unit.Data("infantry", 2, 3)),
+                new BuildUnitProject("heavy_infantry", 7, this, new Unit.Data("heavy_infantry", 3, 3)),
+                new BuildUnitProject("AIV", 10, this, new Unit.Data("AIV", 2, 3)),
+                new BuildUnitProject("tank", 20, this, new Unit.Data("tank", 2, 3)),
+            };
+            return projects;
         }
 
         public void CreateUnit(Unit.Data data, Coord position, Faction faction) {
@@ -44,9 +55,11 @@ namespace Model {
 
         public void EndTurn() {
             CurrentFaction.OnEndTurn();
+            controller.OnEndTurn(CurrentFaction);
             currentFactionId += 1;
             currentFactionId = currentFactionId % Factions.Length;
             CurrentFaction.OnStartTurn();
+            controller.OnStartTurn(CurrentFaction);
         }
 
         public interface IGameController {

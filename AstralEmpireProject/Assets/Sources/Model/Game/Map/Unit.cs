@@ -4,13 +4,20 @@ using Random = UnityEngine.Random;
 namespace Model {
     public sealed class Unit {
         public sealed class Data {
+            public static readonly MoveType[] DefaultMoveMask = new MoveType[] {
+                MoveType.Land,
+                MoveType.Rough
+            };
+
             public readonly string Id;
             public readonly int HitPoints;
             public readonly int ActionPoints;
-            public Data(string id, int hitPoints, int actionPoints = 3) {
+            public readonly MoveType[] MoveTerrainMask;
+            public Data(string id, int hitPoints, int actionPoints = 3, MoveType[] moveTerrainMask = null) {
                 Id = id;
                 HitPoints = hitPoints;
                 ActionPoints = actionPoints;
+                MoveTerrainMask = moveTerrainMask ?? DefaultMoveMask;
             }
         }
 
@@ -28,21 +35,19 @@ namespace Model {
         public Faction Faction = null;
 
         public int moveDistance = 3;
-        public MoveType[] MoveTerrainMask = new MoveType[] {
-            MoveType.Land,
-            MoveType.Rough
-        };
+        public MoveType[] MoveTerrainMask;
 
         public List<Coord> movePath = new List<Coord>();
         private Map map = null;
 
         public Unit(Data data) {
             Coordinate = new Coord();
+            Id = data.Id;
             HitPoints = data.HitPoints;
             MaxHitPoints = data.HitPoints;
             ActionPoints = data.ActionPoints;
             MaxActionPoints = data.ActionPoints;
-            Id = data.Id;
+            MoveTerrainMask = data.MoveTerrainMask;
             AttackCount = 3;
             Power = 5;
         }

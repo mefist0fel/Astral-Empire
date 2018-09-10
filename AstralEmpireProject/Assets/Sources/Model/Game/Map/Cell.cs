@@ -59,9 +59,9 @@ namespace Model {
             return (HasCity && City.Faction != faction);
         }
 
-        public bool CanMoveAcrossBy(Unit unit) {
-            for (int i = 0; i < unit.MoveTerrainMask.Length; i++)
-                if (unit.MoveTerrainMask[i] == Type)
+        public bool CanMoveAcrossBy(MoveType[] moveTerrainMask) {
+            for (int i = 0; i < moveTerrainMask.Length; i++)
+                if (moveTerrainMask[i] == Type)
                     return true;
             return false;
         }

@@ -13,17 +13,18 @@ public sealed class ProjectDescriptionPanel : MonoBehaviour {
     private Button selectProjectButton; // Set from editor
 
     private event Action<AbstractProject> onSelectProjectClick;
-    private AbstractProject currentProject;
+    private AbstractProject project;
 
-    public void Init(AbstractProject project, Action<AbstractProject> onSelectProjectClickCallback) {
-        currentProject = project;
+    public void Init(AbstractProject currentProject, Action<AbstractProject> onSelectProjectClickCallback) {
+        project = currentProject;
         onSelectProjectClick = onSelectProjectClickCallback;
-        ShowProjectParams(project);
+        ShowProjectParams();
     }
 
-    private void ShowProjectParams(AbstractProject project) {
+    public void ShowProjectParams(int cityProduction = 1) {
         projectName.text = project.ID;
-        projectDescription.text = project.Cost.ToString();
+        int turnsToEnd = Mathf.CeilToInt(project.Cost / (float)cityProduction);
+        projectDescription.text = string.Format("{0}({1} turns)", project.Cost.ToString(), turnsToEnd);
     }
 
     private void Start() {
@@ -31,6 +32,6 @@ public sealed class ProjectDescriptionPanel : MonoBehaviour {
     }
 
     private void OnSelectProjectButtonClick() {
-        onSelectProjectClick.InvokeSafe(currentProject);
+        onSelectProjectClick.InvokeSafe(project);
     }
 }

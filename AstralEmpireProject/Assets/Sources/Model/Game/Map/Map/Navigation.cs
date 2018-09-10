@@ -58,7 +58,7 @@ namespace Model.PathFind {
             actionPoints -= cell.MoveCost;
             if (actionPoints < 0) // No action points
                 return;
-            if (!cell.CanMoveAcrossBy(unit)) // Can't move across cell type of terrain
+            if (!cell.CanMoveAcrossBy(unit.MoveTerrainMask)) // Can't move across cell type of terrain
                 return;
             if (actionPoints <= moveMarkers[coord]) // cell already pacified
                 return;
@@ -129,7 +129,7 @@ namespace Model.PathFind {
                     distance = distanceToId[currentCoord.x, currentCoord.y] + neigbhorCell.MoveCost;
 
                     if (distance < distanceToId[neigbhorCoord.x, neigbhorCoord.y] &&
-                        neigbhorCell.CanMoveAcrossBy(unit) &&
+                        neigbhorCell.CanMoveAcrossBy(unit.MoveTerrainMask) &&
                         (!neigbhorCell.HasEnemyCity(unit.Faction) || neigbhorCoord == endCoord) &&
                         (!neigbhorCell.HasEnemyUnit(unit.Faction) || neigbhorCoord == endCoord)) {
                         frontier.Enqueue(neigbhorCoord, (distance + HeuristicDistance(neigbhorCoord, endCoord)) * 2 + (neigbhorCell.HasUnit ? 1 : 0));

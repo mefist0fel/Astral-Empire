@@ -133,12 +133,12 @@ public class CameraController : MonoBehaviour {
 
     private void Update() {
         if (controlCamera != null) {
-            cameraShift = needCameraShift; // Utils.Lerp(cameraShift, needCameraShift, (0.15f * 30f) * Time.deltaTime);
+            cameraShift = Utils.Lerp(cameraShift, needCameraShift, (0.15f * 30f) * Time.deltaTime);
             controlCamera.transform.localPosition = cameraShift;
         }
         CheckBorders();
-        selfTransform.localPosition = needPosition; // Utils.Lerp(selfTransform.localPosition, needPosition, (0.15f * 50f) * Time.deltaTime);
-        selfTransform.localRotation = needRotation; // Quaternion.Lerp(selfTransform.localRotation, needRotation, (0.15f * 50f) * Time.deltaTime);
+        selfTransform.localPosition = Utils.Lerp(selfTransform.localPosition, needPosition, (0.15f * 50f) * Time.deltaTime);
+        selfTransform.localRotation = Quaternion.Lerp(selfTransform.localRotation, needRotation, (0.15f * 50f) * Time.deltaTime);
     }
 
     private void CheckBorders() {

@@ -101,6 +101,12 @@ public sealed class GameController : MonoBehaviour, Game.IGameController {
     }
 
     public void OnStartTurn(Faction faction) {
+        // move camera to main city
+        var factionCity = faction.Cities.FirstOrDefault();
+        if (factionCity != null) {
+            var capitalPosition = mapView.CellCoordToPosition(factionCity.Coordinate);
+            CameraController.SetPosition(capitalPosition, true);
+        }
     }
 
     public static UnitView CreateUnitView(Transform parent, MapView mapView, Unit unit, string prefabName) {

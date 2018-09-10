@@ -30,7 +30,9 @@ public sealed class CityUI : UILayer {
         UpdateText();
         game = controlGame;
         if (projectPanels == null)
-            projectPanels = CreateProjectButtons(game.ProjectBuilder.AvailableProjects);
+            projectPanels = CreateProjectButtons(game.ProjectBuilder.Projects);
+        foreach (var projectPanel in projectPanels)
+            projectPanel.ShowProjectParams(city.IndustyProduction);
     }
 
     private void UpdateText() {
