@@ -44,6 +44,19 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
     private MarkersSet moveZone = new MarkersSet();
     private MarkersSet fireZone = new MarkersSet();
 
+    private DebugAction debugAction = DebugAction.None;
+
+    private enum DebugAction {
+        None = 0,
+        PutBlueInfantry,
+        PutRedInfantry
+    }
+
+    public interface IControlAction {
+        void OnSelectCell(Coord coord);
+        bool IsEnded();
+    }
+
     public void OnStartGame(Game game) {
         this.game = game;
     } 
@@ -79,6 +92,10 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
         var cell = game.Map[coord];
         if (cell == null)
             return;
+        if (MakeDebugAction(coord)) {
+            debugAction = DebugAction.None;
+            return;
+        }
         ShowStatus(cell, coord);
         if (UnitAlreadySelected(cell, coord)) {
             SelectUnit(null, cell.City);
@@ -298,8 +315,43 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
         currentFaction = faction;
         gameUI.SetStatusText(faction.Name + " turn");
     }
-	
-	private void Update () {
+
+    private bool MakeDebugAction(Coord coord) {
+        switch (debugAction) {
+            default:
+            case DebugAction.None:
+                return false;
+            case DebugAction.PutBlueInfantry:
+                if (CreateUnit(coord, game.Projects.Infantry.UnitData, game.Factions[0]))
+                    debugAction = DebugAction.None;
+                break;
+            case DebugAction.PutRedInfantry:
+                if (CreateUnit(coord, game.Projects.Infantry.UnitData, game.Factions[1]))
+                    debugAction = DebugAction.None;
+                break;
+        }
+        return true;
+    }
+
+    private bool CreateUnit(Coord coord, Unit.Data unitData, Faction faction) {
+        var cell = game.Map[coord];
+        if (cell == null || cell.HasUnit)
+            return false;
+        game.CreateUnit(game.Projects.Infantry.UnitData, coord, faction);
+        return true;
+    }
+
+    private void Update() {
         cameraModel.Process();
+        if (Input.GetKeyUp(KeyCode.F1)) {
+            debugAction = DebugAction.PutBlueInfantry;
+            gameUI.SetStatusText(debugAction.ToString());
+            SelectUnit(null, null);
+        }
+        if (Input.GetKeyUp(KeyCode.F2)) {
+            debugAction = DebugAction.PutRedInfantry;
+            gameUI.SetStatusText(debugAction.ToString());
+            SelectUnit(null, null);
+        }
     }
 }

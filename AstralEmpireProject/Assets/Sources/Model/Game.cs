@@ -5,6 +5,7 @@ using UnityEngine;
 namespace Model {
     public sealed class Game {
         public readonly Map Map;
+        public readonly Projects Projects;
         public readonly ProjectBuilder ProjectBuilder;
         public readonly Faction[] Factions;
         public readonly Faction NeutralFaction = new Faction(new EmptyFactionController(), Color.gray, Color.white, "Neutral");
@@ -19,6 +20,7 @@ namespace Model {
         public Game(IGameController gameController, Map map, Faction[] factions) {
             controller = gameController;
             Map = map;
+            Projects = new Projects(this);
             var projects = LoadProjects();
             ProjectBuilder = new ProjectBuilder(projects);
             Factions = factions;
