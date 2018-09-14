@@ -1,16 +1,28 @@
 ﻿using System;
 using Model;
 using UnityEngine;
+using UnityEngine.UI;
 
 public sealed class CityView : MonoBehaviour {
+    [SerializeField]
+    private Text NameLabel; // Set from editor
+    [SerializeField]
+    private Text ProjectLabel; // Set from editor
+    [SerializeField]
+    private Image Flag; // Set from editor
+
     private City city;
 
     public void Init(City controlCity, Vector3 position) {
         city = controlCity;
         transform.localPosition = position;
-        SetCityColor(city.Faction.BaseColor, city.Faction.FactionColor);
         city.OnSetFaction += OnSetFaction;
+        city.OnUpdate += OnUpdate;
+        SetCityColor(city.Faction.BaseColor, city.Faction.FactionColor);
+        NameLabel.text = city.Name;
+        OnUpdate();
     }
+
 
     private void OnDestroy() {
         if (city == null)
@@ -20,6 +32,10 @@ public sealed class CityView : MonoBehaviour {
 
     private void OnSetFaction(Faction faction) {
         SetCityColor(faction.BaseColor, faction.FactionColor);
+    }
+
+    private void OnUpdate() {
+        ProjectLabel.text = city.CurrentProject == null ? "" : city.TurnsToEnd.ToString();
     }
 
     private void SetCityColor(Color baseColor, Color factionColor) {
@@ -33,6 +49,7 @@ public sealed class CityView : MonoBehaviour {
                 renderers[i].material.SetColor("_FactionColor", factionColor);
             }
         }
+        Flag.color = baseColor;
     }
 
     private void Start () {}

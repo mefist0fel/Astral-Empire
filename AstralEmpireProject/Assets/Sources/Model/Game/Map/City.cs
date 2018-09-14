@@ -18,9 +18,11 @@ namespace Model {
         }
 
         public BuildProject CurrentProject { get; private set; }
+        public int TurnsToEnd { get { return CurrentProject == null ? 0 : Mathf.CeilToInt(CurrentProject.IndustryNeed / (float)IndustyProduction); } }
 
         public readonly Unit Garrison;
         public event Action<Faction> OnSetFaction;
+        public event Action OnUpdate;
 
         public City(IProjectBuilder builder, Faction faction, Coord position) {
             projectBuilder = builder;
@@ -42,10 +44,12 @@ namespace Model {
 
         public void SetProject(string id, int industryCost) {
             CurrentProject = new BuildProject() { ID = id, IndustryNeed = industryCost };
+            OnUpdate.InvokeSafe();
         }
 
         public void OnStartTurn () {
             ProcessCurrentProject(IndustyProduction);
+            OnUpdate.InvokeSafe();
         }
 
         private void ProcessCurrentProject(int industy) {
