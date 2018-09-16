@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using Random = UnityEngine.Random;
 
 namespace Model {
@@ -74,8 +75,33 @@ namespace Model {
 
         public void AttackUnit(Unit enemy) {
             ActionPoints = 0;
-            var damageToEnemy = 0;
-            var damageToMe = 0;
+            int damageToEnemy = 0;
+            int damageToMe = 0;
+            CalculateCombat(enemy, out damageToMe, out damageToEnemy);
+            this.OnHit(damageToMe);
+            enemy.OnHit(damageToEnemy);
+            map.AddAction(new AttackUnitAction(this, enemy, damageToMe, damageToEnemy));
+            if (!IsAlive)
+                Death();
+            if (!enemy.IsAlive)
+                enemy.Death();
+        }
+
+        public void AttackCity(City enemyCity) {
+            ActionPoints = 0;
+            int damageToCity = 0;
+            int damageToMe = 0;
+            CalculateCombat(enemyCity.Garrison, out damageToMe, out damageToCity);
+            this.OnHit(damageToMe);
+            enemyCity.Garrison.OnHit(damageToCity);
+            map.AddAction(new AttackCityAction(this, enemyCity, damageToMe, damageToCity));
+            if (!IsAlive)
+                Death();
+        }
+
+        private void CalculateCombat(Unit enemy, out int damageToMe, out int damageToEnemy) {
+            damageToEnemy = 0;
+            damageToMe = 0;
             for (int i = 0; i < AttackCount; i++) {
                 // attack enemy
                 if (this.HitEnemy(enemy))
@@ -88,14 +114,6 @@ namespace Model {
                 if (damageToMe >= this.HitPoints)
                     break;
             }
-            this.OnHit(damageToMe);
-            enemy.OnHit(damageToEnemy);
-            map.AddAction(new AttackAction(this, enemy, damageToEnemy));
-            map.AddAction(new AttackAction(enemy, this, damageToMe));
-            if (!IsAlive)
-                Death();
-            if (!enemy.IsAlive)
-                enemy.Death();
         }
 
         private bool HitEnemy(Unit enemy) {

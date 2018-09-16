@@ -4,6 +4,7 @@ using UnityEngine;
 using System.Collections.Generic;
 using System.Linq;
 using Random = UnityEngine.Random;
+using View;
 
 public sealed class GameController : MonoBehaviour, Game.IGameController {
     [SerializeField]
@@ -62,9 +63,19 @@ public sealed class GameController : MonoBehaviour, Game.IGameController {
             var moveAction = action as MoveAction;
             unitViews[moveAction.Unit].MoveTo(moveAction.Path.Select(coord => mapView.CellCoordToPosition(coord)).ToArray());
         }
-        if (action is AttackAction) {
-            var attackAction = action as AttackAction;
-            unitViews[attackAction.AttackerUnit].Attack(unitViews[attackAction.DefenciveUnit], attackAction.Damage);
+        if (action is AttackUnitAction) {
+            var attackAction = action as AttackUnitAction;
+            unitViews[attackAction.AttackerUnit].OnAttack(unitViews[attackAction.DefensiveUnit]);
+            unitViews[attackAction.AttackerUnit].OnHit(attackAction.DefenserDamage);
+            unitViews[attackAction.DefensiveUnit].OnHit(attackAction.AttackerDamage);
+            unitViews[attackAction.DefensiveUnit].OnAttack(unitViews[attackAction.AttackerUnit]);
+        }
+        if (action is AttackCityAction) {
+            var attackAction = action as AttackCityAction;
+            unitViews[attackAction.AttackerUnit].OnAttack(cityViews[attackAction.City]);
+            unitViews[attackAction.AttackerUnit].OnHit(attackAction.DamageToUnit);
+            cityViews[attackAction.City].OnHit(attackAction.DamageToCity);
+            cityViews[attackAction.City].OnAttack(unitViews[attackAction.AttackerUnit]);
         }
         if (action is DeathAction) {
             var deathAction = action as DeathAction;
@@ -139,7 +150,7 @@ public sealed class GameController : MonoBehaviour, Game.IGameController {
         if (Input.GetKeyDown(KeyCode.F1)) {
         }
         if (Input.GetKeyDown(KeyCode.F2)) {
-            Time.timeScale = (Time.timeScale == 1f) ? 10f : 1f;
+          //  Time.timeScale = (Time.timeScale == 1f) ? 10f : 1f;
         }
         if (Input.GetKeyDown(KeyCode.F3)) {
         }

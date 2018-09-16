@@ -137,6 +137,24 @@ namespace Model {
             unit.AttackUnit(attackedUnit);
         }
 
+        public void AttackCity(Unit unit, City city) {
+            unit.AttackCity(city);
+            if (!city.Garrison.IsAlive && unit.IsAlive) {
+                CaptureCity(unit, city);
+            }
+        }
+
+        private void CaptureCity(Unit unit, City city) {
+            var from = unit.Coordinate;
+            var to = city.Coordinate;
+            this[from].Unit = null;
+            this[to].Unit = unit;
+            unit.SetPositionTo(city.Coordinate);
+            AddAction(new MoveAction(this[to].Unit, from, to, 0));
+            // TODO Make action
+            city.SetFaction(unit.Faction);
+        }
+
         public MarkersSet GetMoveZone(Unit unit) {
             return Navigation.GetMoveZone(unit);
         }
@@ -175,7 +193,9 @@ namespace Model {
                     var distanceIsActual = unit.MinFireRange <= distance && distance <= unit.MaxFireRange;
                     var currentCoord = new Coord(i, j) + coord;
                     var hasEnemyUnit = this[currentCoord].HasEnemyUnit(unit.Faction);
-                    if (distanceIsActual && hasEnemyUnit)
+                    var hasEnemyCity = this[currentCoord].HasEnemyCity(unit.Faction);
+                    var hasEnemyForAttack = hasEnemyCity || hasEnemyUnit;
+                    if (distanceIsActual && hasEnemyForAttack)
                         fireMarkers[currentCoord] = 1;
                 }
             }

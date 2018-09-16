@@ -179,6 +179,19 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
             ShowCurrentPath(selectedUnit, moveTargetCoord);
             return;
         }
+        var clickedCity = game.Map[coord].City;
+        if (clickedCity != null && fireZone[coord] > 0) {
+            // set fire and move markers on this turn
+            if (!game.Map.IsCanFireFromCoord(selectedUnit, moveTargetCoord, coord)) {
+                moveTargetCoord = game.Map.FindOptimalMovePoint(selectedUnit, moveZone, coord);
+            }
+            fireTargetCoord = coord;
+            // ShowMoveTarget
+            moveSelector.Show(mapView.CellCoordToPosition(moveTargetCoord));
+            fireSelector.Show(mapView.CellCoordToPosition(fireTargetCoord));
+            ShowCurrentPath(selectedUnit, moveTargetCoord);
+            return;
+        }
         if (moveZone[coord] > 0) {
             // set move marker only on this turn
             moveTargetCoord = coord;
@@ -206,11 +219,15 @@ public sealed class PlayerTurnController : MonoBehaviour, Faction.IController {
     }
 
     private void MakeTurn() {
+        Debug.LogError("Make turn");
         moveSelector.Hide();
         fireSelector.Hide();
         game.Map.MoveUnit(selectedUnit.Coordinate, moveTargetCoord, moveZone);
-        if (game.Map[fireTargetCoord].Unit != null && fireZone[fireTargetCoord] > 0) {
+        if (game.Map[fireTargetCoord].HasUnit && fireZone[fireTargetCoord] > 0) {
             game.Map.AttackUnit(selectedUnit, game.Map[fireTargetCoord].Unit);
+        }
+        if (game.Map[fireTargetCoord].HasCity && fireZone[fireTargetCoord] > 0) {
+            game.Map.AttackCity(selectedUnit, game.Map[fireTargetCoord].City);
         }
         // ShowSelectionMarker(selectedUnit.Coordinate);
         moveMarkersView.Hide();

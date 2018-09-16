@@ -14,8 +14,8 @@ namespace Model {
             Unit = unit;
             FromCoord = from;
             ToCoord = to;
-            ActionPoints = actionPoints;
-            Path = path;
+            Path = path ?? new List<Coord>() { from, to };
+            ActionPoints = actionPoints; // TODO kill me
         }
     }
 }
