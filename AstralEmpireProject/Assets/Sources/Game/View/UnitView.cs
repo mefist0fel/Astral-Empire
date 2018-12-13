@@ -21,7 +21,7 @@ namespace View {
         // private BaseWeaponView weaponView; // Set from editor
 
         [SerializeField]
-        private TextMesh lifeLabel = null; // Set from editor
+        private LifeView lifeView = null; // Set from editor
 
         public Vector3 TargetPosition { get { return transform.position; } }
 
@@ -29,7 +29,6 @@ namespace View {
         public void Init(Unit unitModel, Vector3 position) {
             unit = unitModel;
             transform.localPosition = position;
-            // transform.localEulerAngles = new Vector3(0, 180f * unit.Faction.SideId, 0); // hack for rotation
             SetUnitColor(unit.Faction.BaseColor, unit.Faction.FactionColor);
         }
 
@@ -47,9 +46,7 @@ namespace View {
         }
 
         private void UpdateHitPointsLabel() {
-            if (lifeLabel != null) {
-                lifeLabel.text = string.Format("{0}/{1}", unit.HitPoints, unit.MaxHitPoints);
-            }
+            lifeView.UpdateLife(unit);
         }
 
         [ContextMenu("Show death animation")]
@@ -57,13 +54,7 @@ namespace View {
             if (this == null)
                 return;
             SetUnitMaterial(deathMaterial);
-            if (lifeLabel != null) {
-                Timer.Add(0.8f, (anim) => {
-                    if (lifeLabel != null) {
-                        lifeLabel.color = new Color(1, 1, 1, 1f - anim);
-                    }
-                });
-            }
+            lifeView.Hide(unit);
             // Falling
             var currentPosition = transform.position;
             var needPosition = transform.position + new Vector3(Random.Range(-0.3f, 0.3f), -Random.Range(0.4f, 1.0f), Random.Range(-0.3f, 0.3f));
